@@ -27,6 +27,12 @@ class MagicCube:
         """
         return self.data.reshape(self.size, self.size, self.size).__str__()
 
+    def randomize(self) -> None:
+        """
+        Randomize the Magic Cube by shuffling the 1D array.
+        """
+        np.random.shuffle(self.data)
+
     def get_row(self, y: int, z: int) -> np.ndarray:
         """
         Returns the specified row.
@@ -189,7 +195,7 @@ class MagicCube:
         # If all checks pass, it's a perfect magic cube
         return True
 
-    # -- INTERNAL FUNCTIONS --
+    # -- INTERNAL/PRIVATE FUNCTIONS --
 
     def __get_index(self, x: int, y: int, z: int) -> int:
         """

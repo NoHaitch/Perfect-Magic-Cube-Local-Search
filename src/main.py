@@ -1,13 +1,18 @@
-from src.data_structure.magic_cube import MagicCube
+from gui.main_menu import MainMenu
+import tkinter as tk
 
 
 def main():
-    cube_size = 5  
-    magic_cube = MagicCube(size=cube_size)
+    # Create the main application window
+    root = tk.Tk()
+    root.title("Magic Cube Solver")
 
-    print("Magic Cube Data:")
+    # Initialize the main menu
+    main_menu = MainMenu(root)
+    main_menu.pack(fill='both', expand=True)
 
-    print(magic_cube)
+    # Start the main loop
+    root.mainloop()
 
 
 if __name__ == "__main__":
