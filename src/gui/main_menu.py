@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 import tkinter as tk
 from src.gui.cube_input import CubeInput
 from src.gui.algorithm_selection import AlgorithmSelection
