@@ -47,14 +47,19 @@ class Visualization(tk.Frame):
 
     def draw_cube(self):
         """Draw the cube and initial visualization."""
+        if len(self.magic_cube.data) != self.cube_size ** 3:
+            print("Error: Magic cube data does not match the expected size of", self.cube_size ** 3)
+            return
+
         for i in range(len(self.x)):
-            # Determine the color based on the row index (y value)
             color = self.row_colors[self.y[i] % self.cube_size]
             self.ax.text(
                 self.spaced_x[i], self.spaced_y[i], self.spaced_z[i],
                 str(self.magic_cube.data[i]),
                 color=color, fontsize=12, ha='center', va='center', fontweight='bold'
             )
+        # Draw wireframe, set limits, etc.
+
 
         # Set initial axis limits to create a true cube with margin
         self.ax.set_xlim([-self.margin_factor, (self.cube_size - 1) * self.spacing_factor + self.margin_factor])

@@ -6,21 +6,30 @@ from src.data_structure.magic_cube import MagicCube
 from src.algorithm.objective_function import objective_function
 import copy
 from random import randint
+import time
+import matplotlib.pyplot as plt
 
 class RandomRestartHillClimbing:
-    def __init__(self, cube_size=5, max_restarts=100, max_iterations=1000):
+    def __init__(self, cube_size=5, max_restarts=100, max_iterations=1000, initial_state=None):
         """
         Initializes the algorithm with a magic cube of specified size and limits on restarts and iterations.
         
         :param cube_size: The size of the cube (default is 5 for a 5x5x5 cube).
         :param max_restarts: The maximum number of random restarts.
         :param max_iterations: The maximum number of iterations per restart.
+        :param initial_state: Optional initial state for the cube.
         """
         self.cube_size = cube_size
         self.max_restarts = max_restarts
         self.max_iterations = max_iterations
         self.best_cube = None
-        self.best_score = None
+        self.best_score = float('inf')
+        self.objective_values = []  # Store objective values for plotting
+
+        # Initialize cube state
+        self.initial_cube = MagicCube(size=self.cube_size)
+        if initial_state is not None:  # Check if initial_state is provided
+            self.initial_cube.data = initial_state
 
     def evaluate(self, cube):
         """
@@ -36,27 +45,39 @@ class RandomRestartHillClimbing:
         Performs a swap of two random elements within the cube data.
         
         :param cube: An instance of MagicCube.
+        :return: The indices and values of the swapped elements.
         """
         idx1, idx2 = randint(0, cube.size**3 - 1), randint(0, cube.size**3 - 1)
+        cube.data[idx1], cube.data[idx2] = cube.data[idx2], cube.data[idx1]
+        return idx1, idx2
+
+    def revert_swap(self, cube, idx1, idx2):
+        """
+        Reverts a swap of two elements within the cube data.
+        
+        :param cube: An instance of MagicCube.
+        :param idx1: The first index used in the swap.
+        :param idx2: The second index used in the swap.
+        """
         cube.data[idx1], cube.data[idx2] = cube.data[idx2], cube.data[idx1]
 
     def run(self):
         """
         Runs the hill climbing algorithm with random restart.
         
-        :return: The initial state and best found state of the magic cube.
+        :return: The initial state, best found state of the magic cube, and performance details.
         """
-        initial_cube = MagicCube(size=self.cube_size)
-        self.best_cube = copy.deepcopy(initial_cube)
-        self.best_score = self.evaluate(initial_cube)
+        self.best_cube = copy.deepcopy(self.initial_cube)
+        self.best_score = self.evaluate(self.initial_cube)
+        start_time = time.time()  # Start timing the process
 
         for restart in range(self.max_restarts):
-            cube = MagicCube(size=self.cube_size)
+            cube = copy.deepcopy(self.initial_cube) if restart == 0 else MagicCube(size=self.cube_size)
             current_score = self.evaluate(cube)
+            iteration_scores = []  # Track objective values for each iteration
             
             for iteration in range(self.max_iterations):
-                # Swap two elements and evaluate the new state
-                self.swap_elements(cube)
+                idx1, idx2 = self.swap_elements(cube)
                 new_score = self.evaluate(cube)
                 
                 # Accept new state if it is better
@@ -65,22 +86,46 @@ class RandomRestartHillClimbing:
                     if current_score < self.best_score:
                         self.best_cube = copy.deepcopy(cube)
                         self.best_score = current_score
+                    iteration_scores.append(current_score)
                 else:
                     # Revert the swap if no improvement
-                    self.swap_elements(cube)
-
-                # If a perfect solution is found, exit early
+                    self.revert_swap(cube, idx1, idx2)
+                
+                # Stop if perfect solution is found
                 if current_score == 0:
                     print(f"Perfect solution found after {iteration} iterations in restart {restart}")
-                    return initial_cube, self.best_cube
+                    self.objective_values.extend(iteration_scores)  # Append scores to plot later
+                    end_time = time.time()
+                    return self.initial_cube, self.best_cube, current_score, end_time - start_time
 
+            # Append iteration scores after each restart
+            self.objective_values.extend(iteration_scores)
             print(f"Restart {restart} complete with best score {self.best_score}")
 
-        return initial_cube, self.best_cube
+        end_time = time.time()  # End timing
+        return self.initial_cube, self.best_cube, self.best_score, end_time - start_time
+
+    def plot_objective_values(self):
+        """
+        Plots the objective function values over the course of iterations.
+        """
+        plt.figure(figsize=(10, 5))
+        plt.plot(self.objective_values, label="Objective Function Value")
+        plt.xlabel("Iterations")
+        plt.ylabel("Objective Function Value")
+        plt.title("Objective Function Value over Iterations")
+        plt.legend()
+        plt.show()
 
 # Example usage:
 if __name__ == "__main__":
-    algo = RandomRestartHillClimbing(cube_size=5)
-    initial_state, final_state = algo.run()
+    initial_data = [randint(1, 5**3) for _ in range(5**3)]  # Example initial data
+    algo = RandomRestartHillClimbing(cube_size=5, initial_state=initial_data)
+    initial_state, final_state, final_score, duration = algo.run()
     print("Initial State:\n", initial_state)
     print("Final State:\n", final_state)
+    print("Final Objective Function Value:", final_score)
+    print("Duration of the search:", duration, "seconds")
+    
+    # Plot the objective function values over iterations
+    algo.plot_objective_values()
