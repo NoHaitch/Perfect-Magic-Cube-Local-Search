@@ -1,133 +1,86 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-from src.data_structure.magic_cube import MagicCube
-from objective_function import objective_function
-import matplotlib.pyplot as plt
-import copy
-import time
 import numpy as np
+from src.data_structure.magic_cube import MagicCube
+from src.algorithm.objective_function import objective_function
+import copy
+from random import randint
 
-class hill_climb_random_restart:
-    """
-    A local search algorithm with Random Restart: Hill-Climbing with Random Restart.
-
-    :var size: The size of the magic cube (default is 5)
-    :var restarts: The number of random restarts (default is 10)
-    :var max_restarts: The maximum allowed restarts to stop the search when reached.
-    """
-    def __init__(self, size=5, restarts=10, max_restarts=50):
+class RandomRestartHillClimbing:
+    def __init__(self, cube_size=5, max_restarts=100, max_iterations=1000):
         """
-        Initializes the Magic Cube and objective function class with a specified number of restarts.
-
-        :param size: Magic cube dimensions, default = 5
-        :param restarts: Number of random restarts, default = 10
-        :param max_restarts: Maximum allowed restarts, default = 50
+        Initializes the algorithm with a magic cube of specified size and limits on restarts and iterations.
+        
+        :param cube_size: The size of the cube (default is 5 for a 5x5x5 cube).
+        :param max_restarts: The maximum number of random restarts.
+        :param max_iterations: The maximum number of iterations per restart.
         """
-        self.size = size
-        self.restarts = restarts
+        self.cube_size = cube_size
         self.max_restarts = max_restarts
-        self.best_state = None
-        self.best_value = -np.inf
-        self.best_iteration = 0
-        self.total_duration = 0
+        self.max_iterations = max_iterations
+        self.best_cube = None
+        self.best_score = None
 
-    def plot_hc_random_restart(self, all_object_values):
+    def evaluate(self, cube):
         """
-        Returns a plot of objective function values for each restart.
-
-        :param all_object_values: List of arrays containing objective values from each restart
-        :return: Plot of objective function values
-        """
-        fig, ax = plt.subplots(figsize=(8, 6))
-        for i, obj_values in enumerate(all_object_values):
-            ax.plot(np.arange(len(obj_values)), obj_values, label=f"Restart {i + 1}")
+        Evaluates the cube using the objective function value.
         
-        ax.set_title("HC Random Restart Objective Function", fontsize=20, weight="bold")
-        ax.set_xlabel("Iteration", fontsize=15)
-        ax.set_ylabel("Objective Function Value", fontsize=15)
-        ax.legend()
-        ax.tick_params(labelsize=15)
-        ax.grid()
-        plt.close()
+        :param cube: An instance of MagicCube.
+        :return: An integer score representing the cube's fitness (lower is better).
+        """
+        return objective_function(cube).get_object_value()
+
+    def swap_elements(self, cube):
+        """
+        Performs a swap of two random elements within the cube data.
         
-        return fig
-
-    def hill_climb_random_restart(self):
+        :param cube: An instance of MagicCube.
         """
-        Runs hill-climbing with random restart and finds the best overall state.
+        idx1, idx2 = randint(0, cube.size**3 - 1), randint(0, cube.size**3 - 1)
+        cube.data[idx1], cube.data[idx2] = cube.data[idx2], cube.data[idx1]
 
-        :return: The best state, best objective function value, number of iterations, duration, all objective values across restarts, and best values per restart
+    def run(self):
         """
-        start_time = time.time()
-        all_object_values = []
-        best_values_per_restart = []  # List to store best values per restart
-
-        for restart in range(self.restarts):
-            current = MagicCube(self.size)                     # Initialize a new random Magic Cube
-            obj_func = objective_function(current)             # Initialize objective function
-            current_value = obj_func.get_object_value()        # Current objective function value
-            object_values = [current_value]                    # Track objective values for this restart
-            iteration = 0
-
-            # Hill-Climbing Steepest Ascent
-            while True:
-                neighbour, neighbour_value = self.__find_neighbour(current)
-
-                if neighbour_value <= current_value:
-                    # If no better neighbor, store this restart's objective values
-                    all_object_values.append(np.array(object_values))
-                    best_values_per_restart.append(current_value)  # Save the best value for this restart
-                    
-                    # Update best state across restarts if needed
-                    if current_value > self.best_value:
-                        self.best_value = current_value
-                        self.best_state = copy.deepcopy(current)
-                        self.best_iteration = iteration
-                    
-                    break  # Exit this restart when local optimum is reached
-
-                # Update current state to the better neighbor
-                current = neighbour
-                current_value = neighbour_value
-                object_values.append(current_value)
-                iteration += 1
-
-        self.total_duration = time.time() - start_time
-
-        return self.best_state, self.best_value, self.best_iteration, self.total_duration, all_object_values, best_values_per_restart
-
-    # -- INTERNAL FUNCTIONS --
-
-    def __swap(self, cube, x1, x2):
+        Runs the hill climbing algorithm with random restart.
+        
+        :return: The initial state and best found state of the magic cube.
         """
-        Swap two elements in the cube data and return the new state.
+        initial_cube = MagicCube(size=self.cube_size)
+        self.best_cube = copy.deepcopy(initial_cube)
+        self.best_score = self.evaluate(initial_cube)
 
-        :param cube: A magic cube class
-        :param x1: First target index
-        :param x2: Second target index
-        :return: A swapped magic cube state
-        """
-        cube_swap = copy.deepcopy(cube)
-        cube_swap.data[[x1, x2]] = cube_swap.data[[x2, x1]]
-        return cube_swap
-    
-    def __find_neighbour(self, cube):
-        """
-        Returns the best state and its objective function value by swapping two different positions.
+        for restart in range(self.max_restarts):
+            cube = MagicCube(size=self.cube_size)
+            current_score = self.evaluate(cube)
+            
+            for iteration in range(self.max_iterations):
+                # Swap two elements and evaluate the new state
+                self.swap_elements(cube)
+                new_score = self.evaluate(cube)
+                
+                # Accept new state if it is better
+                if new_score < current_score:
+                    current_score = new_score
+                    if current_score < self.best_score:
+                        self.best_cube = copy.deepcopy(cube)
+                        self.best_score = current_score
+                else:
+                    # Revert the swap if no improvement
+                    self.swap_elements(cube)
 
-        :param cube: A magic cube class
-        :return: The best state and its objective function value
-        """
-        successors = []
-        object_successors = []
-        for x1 in range(len(cube.data)):
-            for x2 in range(x1 + 1, len(cube.data)):  # Ensure x1 and x2 are different
-                cube_swap = self.__swap(cube, x1, x2)
-                object_value = objective_function(cube_swap).get_object_value()
-                successors.append(cube_swap)
-                object_successors.append(object_value)
+                # If a perfect solution is found, exit early
+                if current_score == 0:
+                    print(f"Perfect solution found after {iteration} iterations in restart {restart}")
+                    return initial_cube, self.best_cube
 
-        best_index = np.argmax(object_successors)
-        return successors[best_index], object_successors[best_index]
+            print(f"Restart {restart} complete with best score {self.best_score}")
 
+        return initial_cube, self.best_cube
+
+# Example usage:
+if __name__ == "__main__":
+    algo = RandomRestartHillClimbing(cube_size=5)
+    initial_state, final_state = algo.run()
+    print("Initial State:\n", initial_state)
+    print("Final State:\n", final_state)
