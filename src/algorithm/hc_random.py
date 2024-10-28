@@ -13,7 +13,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
 class RandomRestartHillClimbing:
-    def __init__(self, cube_size=5, max_restarts=100, max_iterations=2000, initial_state=None):
+    def __init__(self, cube_size=5, max_restarts=100, max_iterations=1000, initial_state=None):
         """
         Initializes the algorithm with a magic cube of specified size and limits on restarts and iterations.
         
@@ -61,69 +61,71 @@ class RandomRestartHillClimbing:
         cube.data[idx1], cube.data[idx2] = cube.data[idx2], cube.data[idx1]
 
     def run(self):
-        """
-        Runs the hill climbing algorithm with random restart.
-    
-        :return: The initial state, best found state of the magic cube, and performance details.
-        """
         self.best_cube = copy.deepcopy(self.initial_cube)
         self.best_score = self.evaluate(self.initial_cube)
         self.best_iteration_scores = []  # Menyimpan skor dari iterasi terbaik
-        start_time = time.time()  # Start timing the process
+        best_scores_per_restart = []     # Menyimpan skor terbaik dari setiap restart
+        start_time = time.time()  # Inisialisasi waktu mulai pencarian
 
         for restart in range(self.max_restarts):
             cube = copy.deepcopy(self.initial_cube) if restart == 0 else MagicCube(size=self.cube_size)
             current_score = self.evaluate(cube)
             iteration_scores = []  # Menyimpan skor setiap iterasi untuk restart ini
-        
+
             for iteration in range(self.max_iterations):
-                idx1, idx2 = self.swap_elements(cube)  # Coba melakukan swap
+                idx1, idx2 = self.swap_elements(cube)
                 new_score = self.evaluate(cube)
-            
+
                 if new_score > current_score:
                     current_score = new_score
                     if current_score > self.best_score:
                         self.best_cube = copy.deepcopy(cube)
                         self.best_score = current_score
-                        # Simpan iterasi terbaik jika skor lebih tinggi dari best_score
                         self.best_iteration_scores = iteration_scores[:]
                     iteration_scores.append(current_score)
                 else:
                     self.revert_swap(cube, idx1, idx2)
 
-                if current_score >= 109:
-                    print(f"Target solution reached at Restart {restart}, Iteration {iteration}")
-                    self.objective_values.extend(iteration_scores)
-                    end_time = time.time()
-                    return self.initial_cube, self.best_cube, current_score, end_time - start_time
+            best_scores_per_restart.append(current_score)
 
-            self.objective_values.extend(iteration_scores)
-            print(f"Restart {restart} completed with best score: {self.best_score}")
+        duration = time.time() - start_time
 
-        end_time = time.time()
-        return self.initial_cube, self.best_cube, self.best_score, end_time - start_time
+        # Pastikan untuk mengembalikan nilai yang diperlukan
+        return self.initial_cube, self.best_cube, self.best_score, duration, self.best_iteration_scores, best_scores_per_restart
 
-    def show_summary_window(self, final_score, duration):
+
+    def show_summary_window(self, final_score, duration, best_iteration_scores, best_scores_per_restart):
         """
-        Creates a new window to display the summary of the algorithm run,
-        including the final objective function value, duration, and plot.
+        Creates a new window to display the summary with two side-by-side plots.
+        
+        :param final_score: Final objective function score achieved.
+        :param duration: Duration of the search process.
+        :param best_iteration_scores: List of objective values over iterations for the best restart.
+        :param best_scores_per_restart: List of best scores achieved in each restart.
         """
         summary_window = tk.Toplevel()
         summary_window.title("Algorithm Summary")
 
-        # Display Final Objective Function Value
+        # Display Final Objective Function Value and Duration
         tk.Label(summary_window, text=f"Final Objective Function Value: {final_score}", font=("Arial", 12)).pack(pady=10)
-
-        # Display Duration
         tk.Label(summary_window, text=f"Duration: {duration:.2f} seconds", font=("Arial", 12)).pack(pady=10)
 
-        # Plot Objective Function Over Iterations
-        fig, ax = plt.subplots(figsize=(6, 4))
-        ax.plot(self.best_iteration_scores, label="Objective Function Value")
-        ax.set_xlabel("Iterations")
-        ax.set_ylabel("Objective Function Value")
-        ax.set_title("Objective Function Value over Iterations")
-        ax.legend()
+        # Create side-by-side plots
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+        # Plot di sebelah kiri: Objective Function over Iterations (Best Restart)
+        ax1.plot(best_iteration_scores, label="Best Restart Objective Function")
+        ax1.set_xlabel("Iterations")
+        ax1.set_ylabel("Objective Function Value")
+        ax1.set_title("Objective Function Value over Iterations (Best Restart)")
+        ax1.legend()
+
+        # Plot di sebelah kanan: Best Scores per Restart
+        ax2.plot(best_scores_per_restart, label="Best Score per Restart", color='orange')
+        ax2.set_xlabel("Restarts")
+        ax2.set_ylabel("Objective Function Value")
+        ax2.set_title("Best Objective Function Value per Restart")
+        ax2.legend()
 
         # Embed the plot in the Tkinter window
         canvas = FigureCanvasTkAgg(fig, master=summary_window)
