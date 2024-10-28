@@ -8,9 +8,12 @@ import copy
 from random import randint
 import time
 import matplotlib.pyplot as plt
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 
 class RandomRestartHillClimbing:
-    def __init__(self, cube_size=5, max_restarts=100, max_iterations=1000, initial_state=None):
+    def __init__(self, cube_size=5, max_restarts=100, max_iterations=2000, initial_state=None):
         """
         Initializes the algorithm with a magic cube of specified size and limits on restarts and iterations.
         
@@ -65,35 +68,30 @@ class RandomRestartHillClimbing:
         """
         self.best_cube = copy.deepcopy(self.initial_cube)
         self.best_score = self.evaluate(self.initial_cube)
+        self.best_iteration_scores = []  # Menyimpan skor dari iterasi terbaik
         start_time = time.time()  # Start timing the process
 
         for restart in range(self.max_restarts):
-            # Mulai dengan initial cube atau random cube jika bukan restart pertama
             cube = copy.deepcopy(self.initial_cube) if restart == 0 else MagicCube(size=self.cube_size)
             current_score = self.evaluate(cube)
-            iteration_scores = []  # Menyimpan skor setiap iterasi
+            iteration_scores = []  # Menyimpan skor setiap iterasi untuk restart ini
         
             for iteration in range(self.max_iterations):
                 idx1, idx2 = self.swap_elements(cube)  # Coba melakukan swap
                 new_score = self.evaluate(cube)
             
-                # Logging untuk melihat perubahan
-                print(f"Restart {restart}, Iteration {iteration}: Current Score = {current_score}, New Score = {new_score}")
-
-                # Terima kondisi baru jika new_score lebih tinggi dari current_score
                 if new_score > current_score:
                     current_score = new_score
-                    # Perbarui kondisi terbaik jika ini adalah skor tertinggi
                     if current_score > self.best_score:
                         self.best_cube = copy.deepcopy(cube)
                         self.best_score = current_score
+                        # Simpan iterasi terbaik jika skor lebih tinggi dari best_score
+                        self.best_iteration_scores = iteration_scores[:]
                     iteration_scores.append(current_score)
                 else:
-                    # Batalkan swap jika tidak ada perbaikan
                     self.revert_swap(cube, idx1, idx2)
 
-                # Hentikan jika skor mencapai target yang Anda anggap optimal
-                if current_score >= 109:  # Contoh target nilai objektif yang dianggap sempurna
+                if current_score >= 109:
                     print(f"Target solution reached at Restart {restart}, Iteration {iteration}")
                     self.objective_values.extend(iteration_scores)
                     end_time = time.time()
@@ -105,18 +103,36 @@ class RandomRestartHillClimbing:
         end_time = time.time()
         return self.initial_cube, self.best_cube, self.best_score, end_time - start_time
 
+    def show_summary_window(self, final_score, duration):
+        """
+        Creates a new window to display the summary of the algorithm run,
+        including the final objective function value, duration, and plot.
+        """
+        summary_window = tk.Toplevel()
+        summary_window.title("Algorithm Summary")
 
-    def plot_objective_values(self):
-        """
-        Plots the objective function values over the course of iterations.
-        """
-        plt.figure(figsize=(10, 5))
-        plt.plot(self.objective_values, label="Objective Function Value")
-        plt.xlabel("Iterations")
-        plt.ylabel("Objective Function Value")
-        plt.title("Objective Function Value over Iterations")
-        plt.legend()
-        plt.show()
+        # Display Final Objective Function Value
+        tk.Label(summary_window, text=f"Final Objective Function Value: {final_score}", font=("Arial", 12)).pack(pady=10)
+
+        # Display Duration
+        tk.Label(summary_window, text=f"Duration: {duration:.2f} seconds", font=("Arial", 12)).pack(pady=10)
+
+        # Plot Objective Function Over Iterations
+        fig, ax = plt.subplots(figsize=(6, 4))
+        ax.plot(self.best_iteration_scores, label="Objective Function Value")
+        ax.set_xlabel("Iterations")
+        ax.set_ylabel("Objective Function Value")
+        ax.set_title("Objective Function Value over Iterations")
+        ax.legend()
+
+        # Embed the plot in the Tkinter window
+        canvas = FigureCanvasTkAgg(fig, master=summary_window)
+        canvas.draw()
+        canvas.get_tk_widget().pack(pady=10)
+
+        # Button to close the window
+        close_button = tk.Button(summary_window, text="Close", command=summary_window.destroy)
+        close_button.pack(pady=10)
 
 # Example usage:
 if __name__ == "__main__":
@@ -128,5 +144,5 @@ if __name__ == "__main__":
     print("Final Objective Function Value:", final_score)
     print("Duration of the search:", duration, "seconds")
     
-    # Plot the objective function values over iterations
-    algo.plot_objective_values()
+    # Tampilkan grafik di jendela baru
+    algo.show_graph_window()

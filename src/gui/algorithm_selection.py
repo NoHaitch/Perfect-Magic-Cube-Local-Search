@@ -44,20 +44,18 @@ class AlgorithmSelection(tk.Frame):
     def run_random_restart_hill_climbing(self):
         print("Running Random Restart Hill Climbing...")
     
-        # Ambil data input cube sebagai initial state dan pastikan itu berupa objek MagicCube
-        initial_state = self.cube  # Asumsikan self.cube adalah instance dari MagicCube
+        # Dapatkan *initial state* dan jalankan algoritme
+        initial_state = self.cube
+        self.algo = RandomRestartHillClimbing(cube_size=self.cube.size, initial_state=initial_state.data)
+        initial_cube, final_state_data, final_score, duration = self.algo.run()
     
-        # Inisialisasi dan jalankan algoritme dengan initial state
-        algo = RandomRestartHillClimbing(cube_size=self.cube.size, initial_state=initial_state.data)
-        _, final_state_data, final_score, duration = algo.run()
-    
-        # Buat objek MagicCube baru untuk final_state
+        # Buat objek MagicCube baru untuk *final state*
         final_state = MagicCube(size=self.cube.size)
-        final_state.data = final_state_data.data  # Pastikan formatnya sesuai
+        final_state.data = final_state_data.data
 
-        # Tampilkan visualisasi dari kondisi awal dan akhir
+        # Tampilkan ringkasan hasil dalam jendela baru
+        self.algo.show_summary_window(final_score=final_score, duration=duration)
         self.show_visualization(initial_state=initial_state, final_state=final_state)
-
 
     def run_simulated_annealing(self):
         print("Running Simulated Annealing...")
