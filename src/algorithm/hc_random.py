@@ -41,16 +41,12 @@ class RandomRestartHillClimbing:
         return objective_function(cube).get_object_value()
 
     def swap_elements(self, cube):
-        """
-        Performs a swap of two random elements within the cube data.
-        
-        :param cube: An instance of MagicCube.
-        :return: The indices and values of the swapped elements.
-        """
         idx1, idx2 = randint(0, cube.size**3 - 1), randint(0, cube.size**3 - 1)
+        while idx1 == idx2:
+            idx2 = randint(0, cube.size**3 - 1)  # Memastikan idx2 berbeda
         cube.data[idx1], cube.data[idx2] = cube.data[idx2], cube.data[idx1]
         return idx1, idx2
-
+    
     def revert_swap(self, cube, idx1, idx2):
         """
         Reverts a swap of two elements within the cube data.
@@ -64,7 +60,7 @@ class RandomRestartHillClimbing:
     def run(self):
         """
         Runs the hill climbing algorithm with random restart.
-        
+    
         :return: The initial state, best found state of the magic cube, and performance details.
         """
         self.best_cube = copy.deepcopy(self.initial_cube)
@@ -72,38 +68,43 @@ class RandomRestartHillClimbing:
         start_time = time.time()  # Start timing the process
 
         for restart in range(self.max_restarts):
+            # Mulai dengan initial cube atau random cube jika bukan restart pertama
             cube = copy.deepcopy(self.initial_cube) if restart == 0 else MagicCube(size=self.cube_size)
             current_score = self.evaluate(cube)
-            iteration_scores = []  # Track objective values for each iteration
-            
+            iteration_scores = []  # Menyimpan skor setiap iterasi
+        
             for iteration in range(self.max_iterations):
-                idx1, idx2 = self.swap_elements(cube)
+                idx1, idx2 = self.swap_elements(cube)  # Coba melakukan swap
                 new_score = self.evaluate(cube)
-                
-                # Accept new state if it is better
-                if new_score < current_score:
+            
+                # Logging untuk melihat perubahan
+                print(f"Restart {restart}, Iteration {iteration}: Current Score = {current_score}, New Score = {new_score}")
+
+                # Terima kondisi baru jika new_score lebih tinggi dari current_score
+                if new_score > current_score:
                     current_score = new_score
-                    if current_score < self.best_score:
+                    # Perbarui kondisi terbaik jika ini adalah skor tertinggi
+                    if current_score > self.best_score:
                         self.best_cube = copy.deepcopy(cube)
                         self.best_score = current_score
                     iteration_scores.append(current_score)
                 else:
-                    # Revert the swap if no improvement
+                    # Batalkan swap jika tidak ada perbaikan
                     self.revert_swap(cube, idx1, idx2)
-                
-                # Stop if perfect solution is found
-                if current_score == 0:
-                    print(f"Perfect solution found after {iteration} iterations in restart {restart}")
-                    self.objective_values.extend(iteration_scores)  # Append scores to plot later
+
+                # Hentikan jika skor mencapai target yang Anda anggap optimal
+                if current_score >= 109:  # Contoh target nilai objektif yang dianggap sempurna
+                    print(f"Target solution reached at Restart {restart}, Iteration {iteration}")
+                    self.objective_values.extend(iteration_scores)
                     end_time = time.time()
                     return self.initial_cube, self.best_cube, current_score, end_time - start_time
 
-            # Append iteration scores after each restart
             self.objective_values.extend(iteration_scores)
-            print(f"Restart {restart} complete with best score {self.best_score}")
+            print(f"Restart {restart} completed with best score: {self.best_score}")
 
-        end_time = time.time()  # End timing
+        end_time = time.time()
         return self.initial_cube, self.best_cube, self.best_score, end_time - start_time
+
 
     def plot_objective_values(self):
         """

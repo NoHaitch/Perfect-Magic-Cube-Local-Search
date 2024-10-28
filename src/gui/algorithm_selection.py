@@ -67,51 +67,23 @@ class AlgorithmSelection(tk.Frame):
         print("Running Genetic Algorithm...")
         self.show_visualization()
 
-    def show_visualization(self, initial_state=None, final_state=None):
-        """
-        Displays a window with buttons to visualize either the initial or final state of the cube.
-        """
-        visualization_window = tk.Toplevel(self)
-        visualization_window.title("Magic Cube Visualization")
+    def show_visualization(self, initial_state, final_state):
+        # Jendela untuk Initial State
+        initial_window = tk.Toplevel(self)
+        initial_window.title("Initial State Visualization")
+    
+        initial_label = tk.Label(initial_window, text="Initial State", font=("Arial", 12, "bold"))
+        initial_label.pack()
+        initial_vis = Visualization(initial_window, initial_state)
+        initial_vis.pack(fill='both', expand=True)
+        initial_vis.canvas.draw()  # Gambar initial state
 
-        # Function to display initial condition
-        def show_initial():
-            # Clear previous visualization if any
-            for widget in visualization_window.winfo_children():
-                widget.destroy()
-            # Label for Initial State
-            initial_label = tk.Label(visualization_window, text="Initial State", font=("Arial", 12, "bold"))
-            initial_label.pack()
-            # Visualization for Initial State
-            initial_vis = Visualization(visualization_window, initial_state)
-            initial_vis.pack(fill='both', expand=True)
-            initial_vis.canvas.draw()  # Draw the initial state
-            # Buttons for switching
-            show_buttons()
-
-        # Function to display final condition
-        def show_final():
-            # Clear previous visualization if any
-            for widget in visualization_window.winfo_children():
-                widget.destroy()
-            # Label for Final State
-            final_label = tk.Label(visualization_window, text="Final State", font=("Arial", 12, "bold"))
-            final_label.pack()
-            # Visualization for Final State
-            final_vis = Visualization(visualization_window, final_state)
-            final_vis.pack(fill='both', expand=True)
-            final_vis.canvas.draw()  # Draw the final state
-            # Buttons for switching
-            show_buttons()
-
-        # Function to display buttons
-        def show_buttons():
-            # Button to show Initial State
-            initial_button = tk.Button(visualization_window, text="Show Initial Condition", command=show_initial)
-            initial_button.pack(side='left', padx=10, pady=10)
-            # Button to show Final State
-            final_button = tk.Button(visualization_window, text="Show Final Condition", command=show_final)
-            final_button.pack(side='right', padx=10, pady=10)
-
-        # Display initial state by default, along with the buttons
-        show_initial()
+        # Jendela untuk Final State
+        final_window = tk.Toplevel(self)
+        final_window.title("Final State Visualization")
+    
+        final_label = tk.Label(final_window, text="Final State", font=("Arial", 12, "bold"))
+        final_label.pack()
+        final_vis = Visualization(final_window, final_state)
+        final_vis.pack(fill='both', expand=True)
+        final_vis.canvas.draw()  # Gambar final state
