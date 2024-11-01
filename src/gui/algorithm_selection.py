@@ -1,64 +1,92 @@
-import tkinter as tk
 from src.gui.visualization import Visualization
+from src.data_structure.magic_cube import MagicCube
+
+import tkinter as tk
+
 
 class AlgorithmSelection(tk.Frame):
-    def __init__(self, master=None, cube=None):
-        super().__init__(master)
-        self.master = master
-        self.cube = cube
+    """
+    Algorithm Selection Window Frame.
+
+    Call Visualization to show the visualization window.
+    """
+
+    def __init__(self, master=None, initial_cube: MagicCube = None):
+        super().__init__(master)                            # Construct the algorithm selection window
+        self.master = master                                # Reference to the main window
+        self.cube: MagicCube = initial_cube                 # Reference to the Magic Cube object
+        self.cube_states: list[MagicCube] = [initial_cube]  # List of MagicCube objects
 
         # Label for algorithm selection
         self.label = tk.Label(self, text="Choose Algorithm:", font=("Arial", 12, "bold"))
         self.label.pack(pady=(10, 5))
 
-        # Buttons for each algorithm
-        self.algo_buttons = []
+        # Frame for top row (Hill Climbing algorithms)
+        top_row_frame = tk.Frame(self)
+        top_row_frame.pack(pady=(5, 5))
 
-        # List of algorithms with corresponding methods
-        algorithms = [
+        # Frame for bottom row (Genetic Algorithm and Simulated Annealing)
+        bottom_row_frame = tk.Frame(self)
+        bottom_row_frame.pack(pady=(5, 10))
+
+        # List of algorithms with corresponding methods and frames
+        algorithms_top = [
             ("Steepest Ascent Hill-Climbing", self.run_steepest_ascent_hill_climbing),
             ("Hill Climbing with Sideways Move", self.run_hill_climbing_with_sideways),
-            ("Random Restart Hill Climbing", self.run_random_restart_hill_climbing),
+            ("Random Restart Hill Climbing", self.run_random_restart_hill_climbing)
+        ]
+        algorithms_bottom = [
             ("Simulated Annealing", self.run_simulated_annealing),
             ("Genetic Algorithm", self.run_genetic_algorithm)
         ]
 
-        # Loop to create buttons for each algorithm
-        for algo_name, algo_method in algorithms:
-            # Using a monospaced font for the button labels
-            button = tk.Button(self, text=algo_name, command=algo_method, font=("Arial", 10))
+        # Create buttons for top row algorithms (Hill Climbing)
+        for algo_name, algo_method in algorithms_top:
+            button = tk.Button(top_row_frame, text=algo_name, command=algo_method, font=("Arial", 10))
             button.pack(side='left', padx=5)
-            self.algo_buttons.append(button)
+
+        # Create buttons for bottom row algorithms (Genetic and Simulated Annealing)
+        for algo_name, algo_method in algorithms_bottom:
+            button = tk.Button(bottom_row_frame, text=algo_name, command=algo_method, font=("Arial", 10))
+            button.pack(side='left', padx=5)
 
     # Placeholder methods for each algorithm
     def run_steepest_ascent_hill_climbing(self):
         print("Running Steepest Ascent Hill-Climbing...")
+        self.cube_states = [MagicCube() for _ in range(10)]
         # TODO: Implement Steepest Ascent Hill-Climbing logic
         self.show_visualization()
 
     def run_hill_climbing_with_sideways(self):
         print("Running Hill Climbing with Sideways Move...")
+        self.cube_states = [MagicCube() for _ in range(100)]
         # TODO: Implement Hill Climbing with Sideways Move logic
         self.show_visualization()
 
     def run_random_restart_hill_climbing(self):
         print("Running Random Restart Hill Climbing...")
+        self.cube_states = [MagicCube() for _ in range(1000)]
         # TODO: Implement Random Restart Hill Climbing logic
         self.show_visualization()
 
     def run_simulated_annealing(self):
         print("Running Simulated Annealing...")
+        self.cube_states = [MagicCube() for _ in range(10000)]
         # TODO: Implement Simulated Annealing logic
         self.show_visualization()
 
     def run_genetic_algorithm(self):
         print("Running Genetic Algorithm...")
+        self.cube_states = [MagicCube() for _ in range(100000)]
         # TODO: Implement Genetic Algorithm logic
         self.show_visualization()
 
     # Method to show the visualization
-    def show_visualization(self):
-        # Display the result in a 3D visualization
+    def show_visualization(self) -> None:
+        """
+        Show the visualization window.
+        """
+
         visualization_window = tk.Toplevel(self)
-        visualization = Visualization(visualization_window, self.cube)
+        visualization = Visualization(visualization_window, self.cube_states)
         visualization.pack(fill='both', expand=True)

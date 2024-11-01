@@ -1,5 +1,48 @@
-from src.data_structure.magic_cube import MagicCube
 import numpy as np
+
+
+# CLASS PLACEHOLDER FOR TYPE CHECKING
+class MagicCube:
+    """
+    A Magic Cube represented by a 1D array.
+
+    :var size: The dimensions of the Magic Cube, default is 5.
+    :var magic_sum: The magic number/constant for the Magic Cube.
+    """
+    size: int
+    magic_sum: int
+
+    def __init__(self, size: int = 5):
+        self.size = size
+        self.magic_sum = 315
+
+    def get_row(self, y: int, z: int) -> np.ndarray:
+        # Returns a row for given indices y, z
+        pass
+
+    def get_col(self, x: int, z: int) -> np.ndarray:
+        # Returns a column for given indices x, z
+        pass
+
+    def get_pillar(self, x: int, y: int) -> np.ndarray:
+        # Returns a pillar for given indices x, y
+        pass
+
+    def get_space_diags(self) -> list[np.ndarray]:
+        # Returns a list of space diagonals
+        pass
+
+    def get_side_diags_x(self) -> list[np.ndarray]:
+        # Returns a list of side diagonals along x-axis
+        pass
+
+    def get_side_diags_y(self) -> list[np.ndarray]:
+        # Returns a list of side diagonals along y-axis
+        pass
+
+    def get_side_diags_z(self) -> list[np.ndarray]:
+        # Returns a list of side diagonals along z-axis
+        pass
 
 
 class ObjectiveFunction:

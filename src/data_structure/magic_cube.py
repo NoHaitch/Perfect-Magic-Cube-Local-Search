@@ -178,7 +178,6 @@ class MagicCube:
         for z in range(self.size):
             for y in range(self.size):
                 if np.sum(self.get_row(y, z)) != self.magic_sum:
-                    print(self.get_row(y, z))
                     print("Row", y, z, "sum is", np.sum(self.get_row(y, z)), "expected", self.magic_sum)
                     return False
 
