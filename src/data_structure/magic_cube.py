@@ -1,3 +1,6 @@
+from src.algorithm.objective_function import ObjectiveFunction
+
+import copy
 import numpy as np
 
 
@@ -10,16 +13,15 @@ class MagicCube:
     :var magic_sum: The magic number/constant for the Magic Cube
     """
 
-    def __init__(self, size=5):
+    def __init__(self, size=5, data=None):
         """
         Generates a Magic Cube in the form of a 1D array with elements from 1 to 125.
 
         :param size: Magic Cube Dimensions, default = 5
         """
-        self.size: int = size                                                       # dimensions, default 5x5x5
-        self.data: np.ndarray = np.random.permutation(np.arange(1, size**3 + 1))    # default is 1 to 125
-        self.magic_sum: int = size * (size**3 + 1) // 2                             # default is 315
-        # magic_sum is the magic number/constant
+        self.size: int = size  # dimensions, default 5x5x5
+        self.data: np.ndarray = data if data is not None else np.random.permutation(np.arange(1, size**3 + 1))
+        self.magic_sum: int = size * (size**3 + 1) // 2  # default is 315
 
     def __str__(self):
         """
@@ -27,11 +29,35 @@ class MagicCube:
         """
         return self.data.reshape(self.size, self.size, self.size).__str__()
 
+    def copy(self) -> 'MagicCube':
+        """
+        Creates a deep copy of the current MagicCube instance.
+
+        :return: A new MagicCube instance that is a deep copy of this instance.
+        """
+        return copy.deepcopy(self)
+
     def randomize(self) -> None:
         """
         Randomize the Magic Cube by shuffling the 1D array.
         """
         np.random.shuffle(self.data)
+
+    def swap(self, x1: int, y1: int, z1: int, x2: int, y2: int, z2: int) -> None:
+        """
+        Swap two elements in the Magic Cube at the specified coordinates
+        """
+        index1 = self.__get_index(x1, y1, z1)
+        index2 = self.__get_index(x2, y2, z2)
+
+        # Swap the elements
+        self.data[index1], self.data[index2] = self.data[index2], self.data[index1]
+
+    def get_state_value(self):
+        """
+        Returns the value of the current state of the Magic Cube.
+        """
+        return ObjectiveFunction.get_object_value(self)
 
     def get_row(self, y: int, z: int) -> np.ndarray:
         """
