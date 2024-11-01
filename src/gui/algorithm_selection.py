@@ -2,6 +2,7 @@ from src.gui.visualization import Visualization
 from src.data_structure.magic_cube import MagicCube
 
 import tkinter as tk
+import time
 
 
 class AlgorithmSelection(tk.Frame):
@@ -16,6 +17,9 @@ class AlgorithmSelection(tk.Frame):
         self.master = master                                # Reference to the main window
         self.cube: MagicCube = initial_cube                 # Reference to the Magic Cube object
         self.cube_states: list[MagicCube] = [initial_cube]  # List of MagicCube objects
+        self.time_taken: float = 0                          # Time taken to solve the cube
+        self.message_passed: str = ""                       # Additional Message to be displayed
+        self.algorithm: str = ""
 
         # Label for algorithm selection
         self.label = tk.Label(self, text="Choose Algorithm:", font=("Arial", 12, "bold"))
@@ -52,33 +56,53 @@ class AlgorithmSelection(tk.Frame):
 
     # Placeholder methods for each algorithm
     def run_steepest_ascent_hill_climbing(self):
-        print("Running Steepest Ascent Hill-Climbing...")
+        self.algorithm = "Steepest Ascent Hill-Climbing"
+        start_time = time.time()
         self.cube_states = [MagicCube() for _ in range(10)]
         # TODO: Implement Steepest Ascent Hill-Climbing logic
+        end_time = time.time()
+        self.time_taken = (end_time - start_time) * 1000
+
         self.show_visualization()
 
     def run_hill_climbing_with_sideways(self):
-        print("Running Hill Climbing with Sideways Move...")
+        self.algorithm = "Hill Climbing with Sideways Move"
+        start_time = time.time()
         self.cube_states = [MagicCube() for _ in range(100)]
         # TODO: Implement Hill Climbing with Sideways Move logic
+        end_time = time.time()
+        self.time_taken = (end_time - start_time) * 1000
+
         self.show_visualization()
 
     def run_random_restart_hill_climbing(self):
-        print("Running Random Restart Hill Climbing...")
+        self.algorithm = "Random Restart Hill Climbing"
+        start_time = time.time()
         self.cube_states = [MagicCube() for _ in range(1000)]
         # TODO: Implement Random Restart Hill Climbing logic
+        end_time = time.time()
+        self.time_taken = (end_time - start_time) * 1000
+
         self.show_visualization()
 
     def run_simulated_annealing(self):
-        print("Running Simulated Annealing...")
+        self.algorithm = "Simulated Annealing"
+        start_time = time.time()
         self.cube_states = [MagicCube() for _ in range(10000)]
         # TODO: Implement Simulated Annealing logic
+        end_time = time.time()
+        self.time_taken = (end_time - start_time) * 1000
+
         self.show_visualization()
 
     def run_genetic_algorithm(self):
-        print("Running Genetic Algorithm...")
+        self.algorithm = "Genetic Algorithm"
+        start_time = time.time()
         self.cube_states = [MagicCube() for _ in range(100000)]
         # TODO: Implement Genetic Algorithm logic
+        end_time = time.time()
+        self.time_taken = (end_time - start_time) * 1000
+
         self.show_visualization()
 
     # Method to show the visualization
@@ -88,5 +112,7 @@ class AlgorithmSelection(tk.Frame):
         """
 
         visualization_window = tk.Toplevel(self)
-        visualization = Visualization(visualization_window, self.cube_states)
+        visualization = Visualization(visualization_window, self.cube_states,
+                                      self.time_taken, self.cube_states[-1].is_perfect(), self.message_passed,
+                                      self.algorithm)
         visualization.pack(fill='both', expand=True)

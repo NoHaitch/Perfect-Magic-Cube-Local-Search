@@ -10,14 +10,25 @@ class Visualization(tk.Frame):
     """
     Visualization Window Frame. Visualize the result of local search.
     """
-    def __init__(self, master, cube_states: list[MagicCube]):
+    def __init__(self, master,
+                 cube_states: list[MagicCube],
+                 time_taken: float,
+                 is_perfect_cube: bool,
+                 message_passed: str,
+                 algorithm: str):
+
         super().__init__(master)                                        # Construct the visualization window
         self.master = master                                            # Reference to the main window
         self.cube_states = cube_states                                  # List of MagicCube objects
-        self.cube_size = cube_states[0].size                            # Size of the cube
+        self.cube_size = cube_states[0].size                          # Size of the cube
         self.row_colors = ['red', 'blue', 'green', 'orange', 'purple']  # Colors for each row
         self.spacing_factor = 1.5                                       # Spacing between cube elements
         self.margin_factor = 0.5                                        # Margin around the cube
+        self.auto_index_slider = False
+
+        # Set the default play speed (1x = 2 states per second)
+        self.play_speed = 500  # In milliseconds (1000ms / 2 states = 500ms/state)
+        self.current_state_index = 0
 
         # Create 3D figure with Matplotlib
         self.fig = plt.Figure(figsize=(8, 8))
@@ -43,22 +54,78 @@ class Visualization(tk.Frame):
         self.canvas = FigureCanvasTkAgg(self.fig, master=self)
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        # Create a slider to adjust the cube visualization
+        # State for play/pause functionality
+        self.is_playing = False
+
+        # Create control frame for buttons
+        control_frame = tk.Frame(self)
+        control_frame.pack(side=tk.BOTTOM, pady=10)
+
+        # Add Play and Pause buttons
+        self.play_button = tk.Button(control_frame, text="Play", command=self.play)
+        self.play_button.pack(side=tk.LEFT, padx=5)
+
+        self.pause_button = tk.Button(control_frame, text="Pause", command=self.pause)
+        self.pause_button.pack(side=tk.LEFT, padx=5)
+
+        # Create speed control buttons
+        speed_frame = tk.Frame(self)
+        speed_frame.pack(side=tk.BOTTOM, pady=10)
+
+        speeds = [(0.5, 1000), (1, 500), (2, 250), (5, 100), (10, 50), (20, 25)]  # (factor, speed in ms)
+        for speed_factor, speed_value in speeds:
+            button = tk.Button(speed_frame, text=f"{speed_factor}x", command=lambda sv=speed_value: self.set_speed(sv))
+            button.pack(side=tk.LEFT, padx=5)
+
+        # Create a frame for the slider and buttons
+        control_frame = tk.Frame(self)
+        control_frame.pack(side=tk.BOTTOM, pady=10)
+
+        self.left_button = tk.Button(control_frame, text="<<<", command=self.move_left100)
+        self.left_button.pack(side=tk.LEFT, padx=5)
+
+        self.left_button = tk.Button(control_frame, text="<<", command=self.move_left10)
+        self.left_button.pack(side=tk.LEFT, padx=5)
+
+        self.left_button = tk.Button(control_frame, text="<", command=self.move_left)
+        self.left_button.pack(side=tk.LEFT, padx=5)
+
+        # Create a wider slider to adjust the cube visualization
         self.slider = tk.Scale(
-            self, from_=0, to=len(self.cube_states) - 1, orient=tk.HORIZONTAL,
-            command=lambda val: self.update_cube(int(val))
+            control_frame, from_=0, to=len(self.cube_states) - 1, orient=tk.HORIZONTAL,
+            command=self.slider_moved, length=400
         )
-        self.slider.pack(side=tk.BOTTOM)
+        self.slider.pack(side=tk.LEFT, padx=5)
 
-        # Buttons for initial and end states
-        button_frame = tk.Frame(self)
-        button_frame.pack(side=tk.BOTTOM)
+        self.right_button = tk.Button(control_frame, text=">", command=self.move_right)
+        self.right_button.pack(side=tk.LEFT, padx=5)
 
-        self.init_button = tk.Button(button_frame, text="Initial State", command=self.show_initial_state)
-        self.init_button.pack(side=tk.LEFT, padx=5)
+        self.right_button = tk.Button(control_frame, text=">>", command=self.move_right10)
+        self.right_button.pack(side=tk.LEFT, padx=5)
 
-        self.end_button = tk.Button(button_frame, text="End State", command=self.show_end_state)
-        self.end_button.pack(side=tk.RIGHT, padx=5)
+        self.right_button = tk.Button(control_frame, text=">>>", command=self.move_right100)
+        self.right_button.pack(side=tk.LEFT, padx=5)
+
+        # Description label for search information
+        description_text = (
+            "\n"
+            f"Algorithm: {algorithm}\n"
+            f"Time Taken: {time_taken:.2f} milliseconds\n"
+            f"Perfect Magic Cube: {'Yes' if is_perfect_cube else 'No'}\n"
+            f"Total States: {len(self.cube_states)}\n"
+            f"{message_passed}"
+            "\n"
+        )
+        self.description_label = tk.Label(self, text=description_text, font=("Arial", 10), justify=tk.LEFT,
+                                          bg="white", borderwidth=2, relief=tk.SUNKEN, padx=20)
+        self.description_label.place(relx=0, rely=0, anchor=tk.NW)  # Position at top left
+
+        # Label to display current state value
+        self.state_value_label = tk.Label(self, text="", font=("Arial", 12), justify=tk.CENTER)
+        self.state_value_label.pack(pady=(5, 10), side=tk.BOTTOM)
+
+        # Initialize state value display
+        self.update_state_value(0)
 
     def draw_cube(self, state_index) -> None:
         """
@@ -116,6 +183,15 @@ class Visualization(tk.Frame):
         """
         self.draw_cube(val)
         self.canvas.draw()
+        self.update_state_value(val)
+
+    def update_state_value(self, state_index) -> None:
+        """
+        Update the label with the current state value.
+        """
+        current_cube = self.cube_states[state_index]
+        state_value = current_cube.get_state_value()  # Get the state value
+        self.state_value_label.config(text=f"Current State Value: {state_value}")
 
     def show_initial_state(self) -> None:
         """
@@ -131,3 +207,113 @@ class Visualization(tk.Frame):
         last_index = len(self.cube_states) - 1
         self.slider.set(last_index)
         self.update_cube(last_index)
+
+    def move_left(self) -> None:
+        """
+        Move the slider left (to the previous state) and update visualization.
+        """
+        current_value = self.slider.get()
+        if current_value > 0:
+            self.slider.set(current_value - 1)
+            self.update_cube(current_value - 1)
+
+    def move_right(self) -> None:
+        """
+        Move the slider right (to the next state) and update visualization.
+        """
+        current_value = self.slider.get()
+        if current_value < len(self.cube_states) - 1:
+            self.slider.set(current_value + 1)
+            self.update_cube(current_value + 1)
+
+    def move_left10(self) -> None:
+        """
+        Move the slider left (to the previous state) and update visualization.
+        """
+        current_value = self.slider.get()
+        if current_value > 10:
+            self.slider.set(current_value - 10)
+            self.update_cube(current_value - 10)
+        else:
+            self.slider.set(0)
+            self.update_cube(0)
+
+    def move_right10(self) -> None:
+        """
+        Move the slider left (to the previous state) and update visualization.
+        """
+        current_value = self.slider.get()
+        if current_value < len(self.cube_states) - 10:
+            self.slider.set(current_value + 10)
+            self.update_cube(current_value + 10)
+        else:
+            self.slider.set(len(self.cube_states) - 1)
+            self.update_cube(len(self.cube_states) - 1)
+
+    def move_left100(self) -> None:
+        """
+        Move the slider left (to the previous state) and update visualization.
+        """
+        current_value = self.slider.get()
+        if current_value > 100:
+            self.slider.set(current_value - 100)
+            self.update_cube(current_value - 100)
+        else:
+            self.slider.set(0)
+            self.update_cube(0)
+
+    def move_right100(self) -> None:
+        """
+        Move the slider left (to the previous state) and update visualization.
+        """
+        current_value = self.slider.get()
+        if current_value < len(self.cube_states) - 100:
+            self.slider.set(current_value + 100)
+            self.update_cube(current_value + 100)
+        else:
+            self.slider.set(len(self.cube_states) - 1)
+            self.update_cube(len(self.cube_states) - 1)
+
+    def play(self):
+        """
+        Start automatic update of the cube states.
+        """
+        self.is_playing = True
+        self.update_cube(self.current_state_index)
+        self.auto_update()
+
+    def pause(self):
+        """
+        Stop the automatic update of the cube states.
+        """
+        self.is_playing = False
+        self.slider.set(self.current_state_index)
+
+    def slider_moved(self, val):
+        """
+        Handle slider movement.
+        """
+        self.update_cube(int(val))
+        self.current_state_index = int(val)
+
+    def auto_update(self):
+        """
+        Automatically update the cube state.
+        """
+        if self.is_playing:
+            self.current_state_index += 1
+            if self.current_state_index >= len(self.cube_states):
+                self.current_state_index = 0
+
+            # Update the cube and the slider
+            self.update_cube(self.current_state_index)
+
+            self.slider.set(self.current_state_index)  # Update the slider position
+
+            self.after(self.play_speed, self.auto_update)
+
+    def set_speed(self, speed_value: int) -> None:
+        """
+        Set the playing speed for the automatic update.
+        """
+        self.play_speed = speed_value  # Update the play speed
