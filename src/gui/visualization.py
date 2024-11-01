@@ -10,6 +10,10 @@ class Visualization(tk.Frame):
     """
     Visualization Window Frame. Visualize the result of local search.
     """
+    class Visualization(tk.Frame):
+        """
+        Visualization Window Frame. Visualize the result of local search.
+        """
     def __init__(self, master,
                  cube_states: list[MagicCube],
                  time_taken: float,
@@ -63,12 +67,15 @@ class Visualization(tk.Frame):
         control_frame = tk.Frame(self)
         control_frame.pack(side=tk.BOTTOM, pady=10)
 
-        # Add Play and Pause buttons
+        # Add Play, Pause, and Plot buttons
         self.play_button = tk.Button(control_frame, text="Play", command=self.play)
         self.play_button.pack(side=tk.LEFT, padx=5)
 
         self.pause_button = tk.Button(control_frame, text="Pause", command=self.pause)
         self.pause_button.pack(side=tk.LEFT, padx=5)
+
+        self.plot_button = tk.Button(control_frame, text="Plot", command=self.plot_cubes_and_objective)
+        self.plot_button.pack(side=tk.LEFT, padx=5)
 
         # Create speed control buttons
         speed_frame = tk.Frame(self)
@@ -129,6 +136,55 @@ class Visualization(tk.Frame):
 
         # Initialize state value display
         self.update_state_value(0)
+
+    def plot_cubes_and_objective(self) -> None:
+        """
+        Create a new window to display the initial and resulting cubes
+        and a line plot of the objective function values for each state.
+        """
+        plot_window = tk.Toplevel(self.master)
+        plot_window.title("Cube and Objective Function Plot")
+
+        # Create a frame for the cubes
+        cube_frame = tk.Frame(plot_window)
+        cube_frame.pack(pady=10)
+
+        # Display the initial cube
+        initial_cube_label = tk.Label(cube_frame, text="Initial Cube:")
+        initial_cube_label.pack()
+
+        initial_cube_text = str(self.cube_states[0].data)  # Assuming MagicCube has a 'data' attribute
+        initial_cube_display = tk.Label(cube_frame, text=initial_cube_text)
+        initial_cube_display.pack()
+
+        # Display the resulting cube
+        resulting_cube_label = tk.Label(cube_frame, text="Resulting Cube:")
+        resulting_cube_label.pack()
+
+        resulting_cube_text = str(self.cube_states[-1].data)  # Last index for resulting cube
+        resulting_cube_display = tk.Label(cube_frame, text=resulting_cube_text)
+        resulting_cube_display.pack()
+
+        # Prepare data for the line plot
+        objective_values = [cube.get_state_value() for cube in self.cube_states]  # Assuming a method for the objective value
+        iterations = list(range(len(objective_values)))
+
+        # Create a figure for the line plot
+        fig, ax = plt.subplots()
+        ax.plot(iterations, objective_values, marker='o')
+        ax.set_title('Objective Function Value Over Iterations')
+        ax.set_xlabel('Iteration Number')
+        ax.set_ylabel('Objective Value')
+        ax.grid()
+
+        # Embed the plot into the Tkinter window
+        canvas = FigureCanvasTkAgg(fig, master=plot_window)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+        # Add a button to close the plot window
+        close_button = tk.Button(plot_window, text="Close", command=plot_window.destroy)
+        close_button.pack(pady=5)
 
     def draw_cube(self, state_index) -> None:
         """
@@ -311,7 +367,7 @@ class Visualization(tk.Frame):
             # Update the cube and the slider
             self.update_cube(self.current_state_index)
 
-            self.slider.set(self.current_state_index)  # Update the slider position
+            self.slider.set(self.current_state_index)
 
             self.after(self.play_speed, self.auto_update)
 
@@ -319,4 +375,4 @@ class Visualization(tk.Frame):
         """
         Set the playing speed for the automatic update.
         """
-        self.play_speed = speed_value  # Update the play speed
+        self.play_speed = speed_value
