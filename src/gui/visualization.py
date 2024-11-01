@@ -15,7 +15,8 @@ class Visualization(tk.Frame):
                  time_taken: float,
                  is_perfect_cube: bool,
                  message_passed: str,
-                 algorithm: str):
+                 algorithm: str,
+                 iteration: int):
 
         super().__init__(master)                                        # Construct the visualization window
         self.master = master                                            # Reference to the main window
@@ -25,9 +26,10 @@ class Visualization(tk.Frame):
         self.spacing_factor = 1.5                                       # Spacing between cube elements
         self.margin_factor = 0.5                                        # Margin around the cube
         self.auto_index_slider = False
+        self.iteration = iteration
 
-        # Set the default play speed (1x = 2 states per second)
-        self.play_speed = 500  # In milliseconds (1000ms / 2 states = 500ms/state)
+        # Set the default play speed
+        self.play_speed = 500
         self.current_state_index = 0
 
         # Create 3D figure with Matplotlib
@@ -113,6 +115,7 @@ class Visualization(tk.Frame):
             f"Time Taken: {time_taken:.2f} milliseconds\n"
             f"Perfect Magic Cube: {'Yes' if is_perfect_cube else 'No'}\n"
             f"Total States: {len(self.cube_states)}\n"
+            f"Iteration: {self.iteration}\n"
             f"{message_passed}"
             "\n"
         )

@@ -1,3 +1,5 @@
+from src.algorithm.hc_steepest_ascent import HillClimbSteepest
+from src.algorithm.hc_sideways_move import HillClimbSideways
 from src.gui.visualization import Visualization
 from src.data_structure.magic_cube import MagicCube
 
@@ -14,6 +16,7 @@ class AlgorithmSelection(tk.Frame):
 
     def __init__(self, master=None, initial_cube: MagicCube = None):
         super().__init__(master)                            # Construct the algorithm selection window
+        self.iteration = 0                                  # Number of iterations
         self.master = master                                # Reference to the main window
         self.cube: MagicCube = initial_cube                 # Reference to the Magic Cube object
         self.cube_states: list[MagicCube] = [initial_cube]  # List of MagicCube objects
@@ -57,20 +60,32 @@ class AlgorithmSelection(tk.Frame):
     # Placeholder methods for each algorithm
     def run_steepest_ascent_hill_climbing(self):
         self.algorithm = "Steepest Ascent Hill-Climbing"
+        hc_steepest = HillClimbSteepest(self.cube)
+
+        print("Running")
+
         start_time = time.time()
-        self.cube_states = [MagicCube() for _ in range(10)]
-        # TODO: Implement Steepest Ascent Hill-Climbing logic
+        self.cube_states, self.iteration = hc_steepest.hill_climb_steepest_ascent()
         end_time = time.time()
+
+        print("Finished")
+
         self.time_taken = (end_time - start_time) * 1000
 
         self.show_visualization()
 
     def run_hill_climbing_with_sideways(self):
         self.algorithm = "Hill Climbing with Sideways Move"
+        hc_sideways = HillClimbSideways(self.cube)
+
+        print("Running")
+
         start_time = time.time()
-        self.cube_states = [MagicCube() for _ in range(100)]
-        # TODO: Implement Hill Climbing with Sideways Move logic
+        self.cube_states, self.iteration = hc_sideways.hill_climb_sideways_move()
         end_time = time.time()
+
+        print("Finished")
+
         self.time_taken = (end_time - start_time) * 1000
 
         self.show_visualization()
@@ -114,5 +129,5 @@ class AlgorithmSelection(tk.Frame):
         visualization_window = tk.Toplevel(self)
         visualization = Visualization(visualization_window, self.cube_states,
                                       self.time_taken, self.cube_states[-1].is_perfect(), self.message_passed,
-                                      self.algorithm)
+                                      self.algorithm, self.iteration)
         visualization.pack(fill='both', expand=True)
