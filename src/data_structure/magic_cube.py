@@ -43,7 +43,7 @@ class MagicCube:
         """
         np.random.shuffle(self.data)
 
-    def swap(self, x1: int, y1: int, z1: int, x2: int, y2: int, z2: int) -> None:
+    def swap_coordinates(self, x1: int, y1: int, z1: int, x2: int, y2: int, z2: int) -> None:
         """
         Swap two elements in the Magic Cube at the specified coordinates
         """
@@ -52,6 +52,12 @@ class MagicCube:
 
         # Swap the elements
         self.data[index1], self.data[index2] = self.data[index2], self.data[index1]
+
+    def swap_index(self, i1, i2):
+        """
+        Swap two elements in the Magic Cube at the specified indices
+        """
+        self.data[i1], self.data[i2] = self.data[i2], self.data[i1]
 
     def get_state_value(self):
         """
