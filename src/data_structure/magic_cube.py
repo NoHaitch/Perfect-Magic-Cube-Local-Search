@@ -53,11 +53,27 @@ class MagicCube:
         # Swap the elements
         self.data[index1], self.data[index2] = self.data[index2], self.data[index1]
 
+    def swap_coordinates_new(self, x1: int, y1: int, z1: int, x2: int, y2: int, z2: int) -> 'MagicCube':
+        """
+        Swap two elements in the Magic Cube at the specified coordinates
+        """
+        new_cube = self.copy()
+        new_cube.swap_coordinates(x1, y1, z1, x2, y2, z2)
+        return new_cube
+
     def swap_index(self, i1, i2):
         """
         Swap two elements in the Magic Cube at the specified indices
         """
         self.data[i1], self.data[i2] = self.data[i2], self.data[i1]
+
+    def swap_index_copy(self, i1, i2) -> 'MagicCube':
+        """
+        Returns a new Magic Cube with two elements swapped at the specified indices.
+        """
+        new_cube = self.copy()
+        new_cube.swap_index(i1, i2)
+        return new_cube
 
     def get_state_value(self):
         """
