@@ -1,110 +1,72 @@
 from src.data_structure.magic_cube import MagicCube
-import objective_function
-import matplotlib.pyplot as plt
-import copy
-import time
+
 import numpy as np
 
-class hill_climb_sideways:
+class HillClimbSideways:
     """
     A local search algorithm: Hill-Climbing Sideways Move.
-
-    :var initial: The initialization of a magic cube class depends on its size
-    :var object_initial: The initialization of an objective function class
-    :var max_sides: The maximum iteration of sideways move
     """
-    def __init__(self, max_side, size=5):
-        """
-        Generates an initial of Magic Cube and objective function class.
-
-        :para max_size: The maximum iteration of sideways move
-        :param size: Magic cube dimensions, default = 5
-        """
-        self.initial = MagicCube(size)
-        self.object_initial = objective_function(self.initial)
-        self.max_sides: int = max_side
-
-    def plot_hc_steepest_ascent(self, object_values):
-        """
-        Returns a figure plot of objective function values.
-
-        :param object_values: The array of objective function values
-        :return: The plot of objective function
-        """
-        fig, ax = plt.subplots(figsize = (8, 6))
-        ax.plot(np.arange(len(object_values)), object_values)
-        ax.set_title("HC Sideways Move Objective Function", fontsize=20, weight="bold")
-        ax.set_xlabel("Iteration", fontsize=15)
-        ax.set_ylabel("Objective Function Value", fontsize=15)
-        ax.tick_params(labelsize=15)
-        ax.grid()
-        plt.close()
-
-        return fig
+    def __init__(self, max_side, initial_cube: MagicCube):
+        self.states: list[MagicCube] = [initial_cube]   # self.states[-1] is the current state
+        self.max_sides: int = int(max_side)
 
     def hill_climb_sideways_move(self):
         """
-        Returns the best state and objective function values.
-
-        :return: The best state of magic cube, objective function values, number of iterations, and duration
+        Returns the best state and the amount of iterations.
         """
-        time0 = time.time()
-        current = copy.deepcopy(self.initial)                   # copy of Magic cube class initial
-        object_temp = self.object_initial.get_object_value()    # initial of objective function value
-        object_values = [object_temp]                           # initiation of objective values array
+        current = self.states[-1].copy()                        # copy of Magic cube class initial
+        current_value = current.get_state_value()               # initial state value
         i = 0                                                   # initiation the number of iterations
         i_sides = 0                                             # initiation the number of iterations with sideways move
 
         # Loop of hill-climbing sideways move
         while True:
             # find the best state and its value
-            neighbour, neighbour_value = self.__find_neigbour(current)
+            neighbour, neighbour_value = self.__get_highest_value_neigbour()
             
-            if (neighbour_value < object_temp) or (i_sides == self.max_sides):
-                # if the neighbour objective function value is LESS than the current objective function value, stop the local search
-                return current, np.array(object_values), i, (time.time() - time0)
+            if (neighbour_value < current_value) or (i_sides == self.max_sides):
+                # if the neighbour objective function value is LESS than the current objective function value
+                # stop the local search
+                return self.states, i
             
-            current = neighbour
-            object_temp = neighbour_value
-            object_values.append(object_temp)
-            i += 1
-            if neighbour_value == object_temp:
+            self.states.append(neighbour)
+            if neighbour_value == current_value:
                 i_sides += 1
-
-    def __swap(self, cube, x1, x2):
-        """
-        Returns a swapped magic cube state.
-
-        :param cube: A magic cube class
-        :param x1: First target index
-        :param x2: Second target index
-        :return: A swapped magic cube state
-        """
-        cube_swap = copy.deepcopy(cube)
-        cube_swap.data[[x1, x2]] = cube_swap.data[[x2, x1]]
-
-        return cube_swap
+            else:
+                i_sides = 0
+            current_value = neighbour_value
+            i += 1
+            print(f"iteration {i}, sideways iteration {i_sides} - current value {current_value}")
     
-    def __find_neigbour(self, cube):
+    # -- INTERNAL FUNCTION --
+
+    def __get_highest_value_neigbour(self):
         """
-        Returns the best state and its objective function value.
-
-        :param cube: A magic cube class
-        :return: The best state and its objective function value
+        Returns the best state and its state value.
         """
-        # Initialize arrays of successors and their objective values
-        successors = []
-        object_successors = []
-        for x1 in range(len(cube.data)):
-            for x2 in range(x1, len(cube.data)):
-                if x1 != x2:  # Total iteration of all successor search: (125*124)/2 = 7750
-                    cube_swap = self.__swap(cube, x1, x2)
-                    object_value = objective_function(cube_swap)
-                    successors.append(cube_swap)
-                    object_successors.append(object_value.get_object_value())
 
-        successors = np.array(successors)
-        object_successors = np.array(object_successors)
+        # Initialize arrays for successors and their state values
+        successors: list[MagicCube] = []
+        successors_state: list[int] = []
+        data_len = self.states[-1].size ** 3
 
-        return successors[np.where(object_successors == object_successors.max())[0][0]], object_successors[np.where(object_successors == object_successors.max())[0][0]]
+        # Generate all possible swaps and calculate their state values
+        for x1 in range(data_len):
+            for x2 in range(x1 + 1, data_len):
+                # get successor
+                cube_swap = self.states[-1].swap_index_copy(x1, x2)
+                state_value = cube_swap.get_state_value()
+
+                # add to successors list
+                successors.append(cube_swap)
+                successors_state.append(state_value)
+
+        # Convert to NumPy arrays for fast indexing
+        np_successors_state = np.array(successors_state)
+
+        # Find the index of the maximum state value
+        max_index = np.argmax(np_successors_state)
+
+        # Return the best successor and its state value
+        return successors[max_index], successors_state[max_index]
     
