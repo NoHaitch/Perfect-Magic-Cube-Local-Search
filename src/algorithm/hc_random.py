@@ -13,7 +13,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
 class RandomRestartHillClimbing:
-    def __init__(self, cube_size=5, max_restarts=100, max_iterations=1000, initial_state=None):
+    def __init__(self, cube_size=5, max_restarts=2, max_iterations=100, initial_state=None):
         """
         Initializes the algorithm with a magic cube of specified size and limits on restarts and iterations.
         
@@ -63,36 +63,54 @@ class RandomRestartHillClimbing:
     def run(self):
         self.best_cube = copy.deepcopy(self.initial_cube)
         self.best_score = self.evaluate(self.initial_cube)
-        self.best_iteration_scores = []  # Menyimpan skor dari iterasi terbaik
-        best_scores_per_restart = []     # Menyimpan skor terbaik dari setiap restart
-        start_time = time.time()  # Inisialisasi waktu mulai pencarian
+        self.best_iteration_scores = []
+        best_scores_per_restart = []
+        start_time = time.time()
 
         for restart in range(self.max_restarts):
             cube = copy.deepcopy(self.initial_cube) if restart == 0 else MagicCube(size=self.cube_size)
             current_score = self.evaluate(cube)
-            iteration_scores = []  # Menyimpan skor setiap iterasi untuk restart ini
+            iteration_scores = []
 
             for iteration in range(self.max_iterations):
-                idx1, idx2 = self.swap_elements(cube)
-                new_score = self.evaluate(cube)
+                best_neighbor_score = current_score
+                best_swap = None
 
-                if new_score > current_score:
-                    current_score = new_score
-                    if current_score > self.best_score:
-                        self.best_cube = copy.deepcopy(cube)
-                        self.best_score = current_score
-                        self.best_iteration_scores = iteration_scores[:]
-                    iteration_scores.append(current_score)
-                else:
-                    self.revert_swap(cube, idx1, idx2)
+                # Coba semua neighbor dengan melakukan swap setiap pasangan elemen
+                for i in range(len(cube.data)):
+                    for j in range(i + 1, len(cube.data)):
+                        # Lakukan swap
+                        cube.data[i], cube.data[j] = cube.data[j], cube.data[i]
+                        neighbor_score = self.evaluate(cube)
+
+                        # Periksa apakah ini neighbor terbaik
+                        if neighbor_score > best_neighbor_score:
+                            best_neighbor_score = neighbor_score
+                            best_swap = (i, j)
+
+                        # Kembalikan swap untuk coba pasangan berikutnya
+                        cube.data[i], cube.data[j] = cube.data[j], cube.data[i]
+
+                # Jika tidak ada neighbor yang lebih baik, keluar dari loop iterasi
+                if best_swap is None:
+                    print(f"No improvement found at Restart {restart}, Iteration {iteration}.")
+                    break
+
+                # Jika ada neighbor yang lebih baik, lakukan swap terbaik
+                i, j = best_swap
+                cube.data[i], cube.data[j] = cube.data[j], cube.data[i]
+                current_score = best_neighbor_score
+
+                if current_score > self.best_score:
+                    self.best_cube = copy.deepcopy(cube)
+                    self.best_score = current_score
+                    self.best_iteration_scores = iteration_scores[:]
+                iteration_scores.append(current_score)
 
             best_scores_per_restart.append(current_score)
 
         duration = time.time() - start_time
-
-        # Pastikan untuk mengembalikan nilai yang diperlukan
         return self.initial_cube, self.best_cube, self.best_score, duration, self.best_iteration_scores, best_scores_per_restart
-
 
     def show_summary_window(self, final_score, duration, best_iteration_scores, best_scores_per_restart):
         """
