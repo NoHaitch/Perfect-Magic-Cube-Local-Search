@@ -1,7 +1,7 @@
-from src.algorithm.hc_steepest_ascent import HillClimbSteepest
-from src.algorithm.hc_sideways_move import HillClimbSideways
-from src.gui.visualization import Visualization
-from src.data_structure.magic_cube import MagicCube
+from algorithm.hc_steepest_ascent import HillClimbSteepest
+from algorithm.hc_sideways_move import HillClimbSideways
+from gui.visualization import Visualization
+from data_structure.magic_cube import MagicCube
 
 import tkinter as tk
 import time
@@ -106,14 +106,23 @@ class AlgorithmSelection(tk.Frame):
 
     def run_random_restart_hill_climbing(self):
         self.algorithm = "Random Restart Hill Climbing"
+        
+        print("Running")
+        
         start_time = time.time()
         self.cube_states = [MagicCube() for _ in range(1000)]
-        # TODO: Implement Random Restart Hill Climbing logic
+        initial_state = self.cube
+        
+        hc_random = RandomRestartHillClimbing(cube_size=self.cube.size, initial_state=initial_state.data)
+        self.cube_states, self.iteration = hc_random.run()
         end_time = time.time()
+        
+        print("Finished")
+        
         self.time_taken = (end_time - start_time) * 1000
 
         self.show_visualization()
-
+        
     def run_simulated_annealing(self):
         self.algorithm = "Simulated Annealing"
         start_time = time.time()

@@ -1,106 +1,67 @@
 from src.data_structure.magic_cube import MagicCube
-import objective_function
-import matplotlib.pyplot as plt
-import copy
-import time
+
 import numpy as np
 
-class hill_climb_steepest:
-    """
+
+class HillClimbSteepest:
+    """`
     A local search algorithm: Hill-Climbing Steepest Ascent.
-
-    :var initial: The initialization of a magic cube class depends on its size
-    :var object_initial: The initialization of an objective function class
     """
-    def __init__(self, size=5):
-        """
-        Generates an initial of Magic Cube and objective function class.
+    def __init__(self, initial_cube: MagicCube):
+        self.states: list[MagicCube] = [initial_cube]   # self.states[-1] is the current state
 
-        :param size: Magic cube dimensions, default = 5
+    def hill_climb_steepest_ascent(self) -> tuple[list[MagicCube], int]:
         """
-        self.initial = MagicCube(size)
-        self.object_initial = objective_function(self.initial)
+        Returns the best state and the amount of iterations.
+        """
+        current = self.states[-1].copy()            # copy of Magic cube class initial
+        current_value = current.get_state_value()   # initial state value
+        i = 0                                       # initiation the number of iterations
 
-    def plot_hc_steepest_ascent(self, object_values):
-        """
-        Returns a figure plot of objective function values.
-
-        :param object_values: The array of objective function values
-        :return: The plot of objective function
-        """
-        fig, ax = plt.subplots(figsize = (8, 6))
-        ax.plot(np.arange(len(object_values)), object_values)
-        ax.set_title("HC Steepest Ascent Objective Function", fontsize=20, weight="bold")
-        ax.set_xlabel("Iteration", fontsize=15)
-        ax.set_ylabel("Objective Function Value", fontsize=15)
-        ax.tick_params(labelsize=15)
-        ax.grid()
-        plt.close()
-        
-        return fig
-
-    def hill_climb_steepest_ascent(self):
-        """
-        Returns the best state and objective function values.
-
-        :return: The best state of magic cube, objective function values, number of iterations, and duration
-        """
-        time0 = time.time() 
-        current = copy.deepcopy(self.initial)                   # copy of Magic cube class initial
-        object_temp = self.object_initial.get_object_value()    # initial of objective function value
-        object_values = [object_temp]                           # initiation of objective values array
-        i = 0                                                   # initiation the number of iterations
-        
         # Loop of hill-climbing steepest ascent
-        while True: 
+        while True:
             # find the best state and its value
-            neighbour, neighbour_value = self.__find_neigbour(current)   
-            
-            if neighbour_value <= object_temp:       
-                # if the neighbour objective function value is LESS than or EQUAL to the current objective function value, stop the local search                               
-                return current, np.array(object_values), i, (time.time() - time0)
-            
-            current = neighbour
-            object_temp = neighbour_value
-            object_values.append(object_temp)
+            neighbour, neighbour_value = self.__get_highest_value_neighbour()
+
+            if neighbour_value <= current_value:
+                # if the neighbour state value is LESS than or EQUAL to the current state value,
+                # stop the local search
+                return self.states, i
+
+            self.states.append(neighbour)
+            # current = neighbour --> using self.states[-1]
+            current_value = neighbour_value
             i += 1
+            print("iteration", i, "- current value", current_value)
 
     # -- INTERNAL FUNCTIONS --
 
-    def __swap(self, cube, x1, x2):
+    def __get_highest_value_neighbour(self):
         """
-        Returns a swapped magic cube state.
-
-        :param cube: A magic cube class
-        :param x1: First target index
-        :param x2: Second target index
-        :return: A swapped magic cube state
+        Returns the best cube state and its state value
         """
-        cube_swap = copy.deepcopy(cube)
-        cube_swap.data[[x1, x2]] = cube_swap.data[[x2, x1]]
 
-        return cube_swap
-    
-    def __find_neigbour(self, cube):
-        """
-        Returns the best state and its objective function value.
+        # Initialize arrays for successors and their state values
+        successors: list[MagicCube] = []
+        successors_state: list[int] = []
+        data_len = self.states[-1].size ** 3
 
-        :param cube: A magic cube class
-        :return: The best state and its objective function value
-        """
-        # Initialize arrays of successors and their objective values
-        successors = []
-        object_successors = []
-        for x1 in range(len(cube.data)):
-            for x2 in range(x1, len(cube.data)):
-                if x1 != x2:  # Total iteration of all successor search: (125*124)/2 = 7750
-                    cube_swap = self.__swap(cube, x1, x2)
-                    object_value = objective_function(cube_swap)
-                    successors.append(cube_swap)
-                    object_successors.append(object_value.get_object_value())
+        # Generate all possible swaps and calculate their state values
+        for x1 in range(data_len):
+            for x2 in range(x1 + 1, data_len):
+                # get successor
+                cube_swap = self.states[-1].swap_index_copy(x1, x2)
+                state_value = cube_swap.get_state_value()
 
-        successors = np.array(successors)
-        object_successors = np.array(object_successors)
+                # add to successors list
+                successors.append(cube_swap)
+                successors_state.append(state_value)
 
-        return successors[np.where(object_successors == object_successors.max())[0][0]], object_successors[np.where(object_successors == object_successors.max())[0][0]]
-    
+        # Convert to NumPy arrays for fast indexing
+        np_successors_state = np.array(successors_state)
+
+        # Find the index of the maximum state value
+        max_index = np.argmax(np_successors_state)
+
+        # Return the best successor and its state value
+        return successors[max_index], successors_state[max_index]
