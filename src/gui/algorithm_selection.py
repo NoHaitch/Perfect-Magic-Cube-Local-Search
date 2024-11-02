@@ -1,5 +1,6 @@
 from algorithm.hc_steepest_ascent import HillClimbSteepest
 from algorithm.hc_sideways_move import HillClimbSideways
+from algorithm.hc_random import RandomRestartHillClimbing
 from gui.visualization import Visualization
 from data_structure.magic_cube import MagicCube
 
