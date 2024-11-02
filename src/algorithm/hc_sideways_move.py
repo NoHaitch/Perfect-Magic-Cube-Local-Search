@@ -10,7 +10,7 @@ class HillClimbSideways:
         self.states: list[MagicCube] = [initial_cube]   # self.states[-1] is the current state
         self.max_sides: int = int(max_side)
 
-    def hill_climb_sideways_move(self):
+    def hill_climb_sideways_move(self) -> tuple[list[MagicCube], int]:
         """
         Returns the best state and the amount of iterations.
         """
