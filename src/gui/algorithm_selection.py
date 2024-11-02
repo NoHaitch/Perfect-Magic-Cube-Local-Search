@@ -1,7 +1,7 @@
-from src.algorithm.hc_steepest_ascent import HillClimbSteepest
-from src.algorithm.hc_sideways_move import HillClimbSideways
-from src.gui.visualization import Visualization
-from src.data_structure.magic_cube import MagicCube
+from algorithm.hc_steepest_ascent import HillClimbSteepest
+from algorithm.hc_sideways_move import HillClimbSideways
+from gui.visualization import Visualization
+from data_structure.magic_cube import MagicCube
 
 import tkinter as tk
 import time

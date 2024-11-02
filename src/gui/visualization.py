@@ -1,4 +1,4 @@
-from src.data_structure.magic_cube import MagicCube
+from data_structure.magic_cube import MagicCube
 
 import tkinter as tk
 import numpy as np

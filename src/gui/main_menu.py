@@ -1,6 +1,6 @@
-from src.gui.cube_input import CubeInput
-from src.gui.algorithm_selection import AlgorithmSelection
-from src.data_structure.magic_cube import MagicCube
+from gui.cube_input import CubeInput
+from gui.algorithm_selection import AlgorithmSelection
+from data_structure.magic_cube import MagicCube
 
 import tkinter as tk
 

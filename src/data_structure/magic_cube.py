@@ -1,4 +1,4 @@
-from src.algorithm.objective_function import ObjectiveFunction
+from algorithm.objective_function import ObjectiveFunction
 
 import copy
 import numpy as np
@@ -23,12 +23,6 @@ class MagicCube:
         self.data: np.ndarray = data if data is not None else np.random.permutation(np.arange(1, size**3 + 1))
         self.magic_sum: int = size * (size**3 + 1) // 2  # default is 315
 
-    def __str__(self):
-        """
-        Returns a string representation of the Magic Cube.
-        """
-        return self.data.reshape(self.size, self.size, self.size).__str__()
-
     def copy(self) -> 'MagicCube':
         """
         Creates a deep copy of the current MagicCube instance.
@@ -42,24 +36,6 @@ class MagicCube:
         Randomize the Magic Cube by shuffling the 1D array.
         """
         np.random.shuffle(self.data)
-
-    def swap_coordinates(self, x1: int, y1: int, z1: int, x2: int, y2: int, z2: int) -> None:
-        """
-        Swap two elements in the Magic Cube at the specified coordinates
-        """
-        index1 = self.__get_index(x1, y1, z1)
-        index2 = self.__get_index(x2, y2, z2)
-
-        # Swap the elements
-        self.data[index1], self.data[index2] = self.data[index2], self.data[index1]
-
-    def swap_coordinates_new(self, x1: int, y1: int, z1: int, x2: int, y2: int, z2: int) -> 'MagicCube':
-        """
-        Swap two elements in the Magic Cube at the specified coordinates
-        """
-        new_cube = self.copy()
-        new_cube.swap_coordinates(x1, y1, z1, x2, y2, z2)
-        return new_cube
 
     def swap_index(self, i1, i2):
         """
@@ -80,6 +56,91 @@ class MagicCube:
         Returns the value of the current state of the Magic Cube.
         """
         return ObjectiveFunction.get_object_value(self)
+
+    def is_perfect(self) -> bool:
+        """
+        Checks if the Magic Cube is a perfect magic cube.
+
+        A perfect magic cube has the same magic sum for:
+            - All rows
+            - All columns
+            - All pillars
+            - All space diagonals
+            - All side diagonals
+
+        :return: True if the cube is perfect, False otherwise.
+        """
+
+        # Check all rows
+        for z in range(self.size):
+            for y in range(self.size):
+                if np.sum(self.get_row(y, z)) != self.magic_sum:
+                    print("Row", y, z, "sum is", np.sum(self.get_row(y, z)), "expected", self.magic_sum)
+                    return False
+
+        # Check all columns
+        for z in range(self.size):
+            for x in range(self.size):
+                if np.sum(self.get_col(x, z)) != self.magic_sum:
+                    print("Col", x, z, "sum is", np.sum(self.get_col(x, z)), "expected", self.magic_sum)
+                    return False
+
+        # Check all pillars
+        for y in range(self.size):
+            for x in range(self.size):
+                if np.sum(self.get_pillar(x, y)) != self.magic_sum:
+                    print("Pillar", x, y, "sum is", np.sum(self.get_pillar(x, y)), "expected", self.magic_sum)
+                    return False
+
+        # Check all space diagonals
+        for diag in self.get_space_diags():
+            if np.sum(diag) != self.magic_sum:
+                print("Space Diag", diag, "sum is", np.sum(diag), "expected", self.magic_sum)
+                return False
+
+        # Check all side diagonals on each axis
+        for diag_x in self.get_side_diags_x():
+            if np.sum(diag_x) != self.magic_sum:
+                print("Side Diag X", diag_x, "sum is", np.sum(diag_x), "expected", self.magic_sum)
+                return False
+
+        for diag_y in self.get_side_diags_y():
+            if np.sum(diag_y) != self.magic_sum:
+                print("Side Diag Y", diag_y, "sum is", np.sum(diag_y), "expected", self.magic_sum)
+                return False
+
+        for diag_z in self.get_side_diags_z():
+            if np.sum(diag_z) != self.magic_sum:
+                print("Side Diag Z", diag_z, "sum is", np.sum(diag_z), "expected", self.magic_sum)
+                return False
+
+        # If all checks pass, it's a perfect magic cube
+        return True
+
+
+    def __str__(self):
+        """
+        Returns a string representation of the Magic Cube.
+        """
+        return self.data.reshape(self.size, self.size, self.size).__str__()
+
+    def swap_coordinates(self, x1: int, y1: int, z1: int, x2: int, y2: int, z2: int) -> None:
+        """
+        Swap two elements in the Magic Cube at the specified coordinates
+        """
+        index1 = self.__get_index(x1, y1, z1)
+        index2 = self.__get_index(x2, y2, z2)
+
+        # Swap the elements
+        self.data[index1], self.data[index2] = self.data[index2], self.data[index1]
+
+    def swap_coordinates_new(self, x1: int, y1: int, z1: int, x2: int, y2: int, z2: int) -> 'MagicCube':
+        """
+        Swap two elements in the Magic Cube at the specified coordinates
+        """
+        new_cube = self.copy()
+        new_cube.swap_coordinates(x1, y1, z1, x2, y2, z2)
+        return new_cube
 
     def get_row(self, y: int, z: int) -> np.ndarray:
         """
