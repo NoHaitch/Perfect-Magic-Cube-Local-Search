@@ -26,7 +26,7 @@ class AlgorithmSelection(tk.Frame):
 
         # Label for algorithm selection
         self.label = tk.Label(self, text="Choose Algorithm:", font=("Arial", 12, "bold"))
-        self.label.pack(pady=(10, 5))
+        self.label.pack(pady=(0, 5))
 
         # Frame for top row (Hill Climbing algorithms)
         top_row_frame = tk.Frame(self)
@@ -75,8 +75,22 @@ class AlgorithmSelection(tk.Frame):
         self.show_visualization()
 
     def run_hill_climbing_with_sideways(self):
+        max_sideways = tk.Frame(self)
+        max_sideways.pack(side=tk.BOTTOM, pady=5)
+
+        self.label = tk.Label(self, text="Type Maximum Sideways Move:", font=("Arial", 10, "bold"))
+        self.label.pack(side=tk.LEFT)
+
+        self.input_sideways = tk.Entry(self, width=4, bg="white", font=("Courier", 10))
+        self.input_sideways.pack(side=tk.LEFT)
+
+        self.button_sideways = tk.Button(self, text="Run Hill Climbing with Sideways Move", command=lambda:self.__run_hill_climbing_with_sideways())
+        self.button_sideways.pack(side=tk.RIGHT)
+
+    def __run_hill_climbing_with_sideways(self):
+        max_side = self.input_sideways.get()
         self.algorithm = "Hill Climbing with Sideways Move"
-        hc_sideways = HillClimbSideways(self.cube)
+        hc_sideways = HillClimbSideways(max_side, self.cube)
 
         print("Running")
 
@@ -92,17 +106,23 @@ class AlgorithmSelection(tk.Frame):
 
     def run_random_restart_hill_climbing(self):
         self.algorithm = "Random Restart Hill Climbing"
+        
         print("Running")
+        
         start_time = time.time()
         self.cube_states = [MagicCube() for _ in range(1000)]
         initial_state = self.cube
+        
         hc_random = RandomRestartHillClimbing(cube_size=self.cube.size, initial_state=initial_state.data)
         self.cube_states, self.iteration = hc_random.run()
         end_time = time.time()
+        
         print("Finished")
+        
         self.time_taken = (end_time - start_time) * 1000
 
         self.show_visualization()
+        
     def run_simulated_annealing(self):
         self.algorithm = "Simulated Annealing"
         start_time = time.time()
