@@ -1,6 +1,7 @@
-from src.data_structure.magic_cube import MagicCube
+from data_structure.magic_cube import MagicCube
 
 import numpy as np
+
 
 class HillClimbSideways:
     """
@@ -23,12 +24,12 @@ class HillClimbSideways:
         while True:
             # find the best state and its value
             neighbour, neighbour_value = self.__get_highest_value_neigbour()
-            
+
             if (neighbour_value < current_value) or (i_sides == self.max_sides):
                 # if the neighbour objective function value is LESS than the current objective function value
                 # stop the local search
                 return self.states, i
-            
+
             self.states.append(neighbour)
             if neighbour_value == current_value:
                 i_sides += 1
@@ -37,7 +38,7 @@ class HillClimbSideways:
             current_value = neighbour_value
             i += 1
             print(f"iteration {i}, sideways iteration {i_sides} - current value {current_value}")
-    
+
     # -- INTERNAL FUNCTION --
 
     def __get_highest_value_neigbour(self):
@@ -69,4 +70,4 @@ class HillClimbSideways:
 
         # Return the best successor and its state value
         return successors[max_index], successors_state[max_index]
-    
+

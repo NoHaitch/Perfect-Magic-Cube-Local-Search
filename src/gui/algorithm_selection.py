@@ -1,12 +1,12 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from src.algorithm.hc_steepest_ascent import HillClimbSteepest
-from src.algorithm.hc_sideways_move import HillClimbSideways
-from src.algorithm.hc_random import RandomRestartHillClimbing
-from src.algorithm.hc_stochastic import StochasticHillClimb
-from src.gui.visualization import Visualization
-from src.data_structure.magic_cube import MagicCube
+from algorithm.hc_steepest_ascent import HillClimbSteepest
+from algorithm.hc_sideways_move import HillClimbSideways
+from algorithm.hc_random import RandomRestartHillClimbing
+from algorithm.hc_stochastic import StochasticHillClimb
+from gui.visualization import Visualization
+from data_structure.magic_cube import MagicCube
 import time
 
 

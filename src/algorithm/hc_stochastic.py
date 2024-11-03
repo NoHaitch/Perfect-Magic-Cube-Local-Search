@@ -1,5 +1,3 @@
-from typing import Tuple, List, Any
-
 from data_structure.magic_cube import MagicCube
 
 import random
@@ -13,7 +11,7 @@ class StochasticHillClimb:
         self.states: list[MagicCube] = [initial_cube]   # self.states[-1] is the current state
         self.iteration_value: list[int] = []
 
-    def stochastic_hill_climb(self, nmax: int) -> tuple[list[Any], int, list[int]]:
+    def stochastic_hill_climb(self, nmax: int) -> tuple[list[any], int, list[int]]:
         """
         Executes the Stochastic Hill Climbing algorithm for a maximum of nmax iterations.
         Returns the best state and the number of iterations performed.
