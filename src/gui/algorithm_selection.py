@@ -24,6 +24,7 @@ class AlgorithmSelection(tk.Frame):
         self.input_sideways = None
         self.input_stochastic = None
         self.iteration = 0  # Number of iterations
+        self.iteration_values = None
         self.master = master  # Reference to the main window
         self.cube: MagicCube = initial_cube  # Reference to the Magic Cube object
         self.cube_states: list[MagicCube] = [initial_cube]  # List of MagicCube objects
@@ -166,7 +167,7 @@ class AlgorithmSelection(tk.Frame):
 
         start_time = time.time()
         hc_stochastic = StochasticHillClimb(self.cube)
-        self.cube_states, self.iteration = hc_stochastic.stochastic_hill_climb(max_iterations)
+        self.cube_states, self.iteration, self.iteration_values = hc_stochastic.stochastic_hill_climb(max_iterations)
         end_time = time.time()
 
         print("Finished")
@@ -204,5 +205,5 @@ class AlgorithmSelection(tk.Frame):
         visualization_window = tk.Toplevel(self)
         visualization = Visualization(visualization_window, self.cube_states,
                                       self.time_taken, self.cube_states[-1].is_perfect(), self.message_passed,
-                                      self.algorithm, self.iteration)
+                                      self.algorithm, self.iteration, self.iteration_values)
         visualization.pack(fill='both', expand=True)

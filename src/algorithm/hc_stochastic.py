@@ -1,3 +1,5 @@
+from typing import Tuple, List, Any
+
 from data_structure.magic_cube import MagicCube
 
 import random
@@ -9,14 +11,16 @@ class StochasticHillClimb:
     """
     def __init__(self, initial_cube: MagicCube):
         self.states: list[MagicCube] = [initial_cube]   # self.states[-1] is the current state
+        self.iteration_value: list[int] = []
 
-    def stochastic_hill_climb(self, nmax: int) -> tuple[list[MagicCube], int]:
+    def stochastic_hill_climb(self, nmax: int) -> tuple[list[Any], int, list[int]]:
         """
         Executes the Stochastic Hill Climbing algorithm for a maximum of nmax iterations.
         Returns the best state and the number of iterations performed.
         """
         current = self.states[-1].copy()            # Copy of the initial cube
         current_value = current.get_state_value()   # Initial state value
+        self.iteration_value.append(current_value)
         i = 0                                        # Initiation of the number of iterations
 
         # Loop of stochastic hill-climbing
@@ -29,6 +33,7 @@ class StochasticHillClimb:
             # Randomly select a neighbor
             neighbor = random.choice(neighbors)
             neighbor_value = neighbor.get_state_value()
+            self.iteration_value.append(neighbor_value)
 
             # Always accept the neighbor if it's better
             if neighbor_value > current_value:
@@ -38,7 +43,7 @@ class StochasticHillClimb:
             i += 1
             print("iteration", i, "- current value", current_value)
 
-        return self.states, i
+        return self.states, i, self.iteration_value
 
     # -- INTERNAL FUNCTIONS --
 

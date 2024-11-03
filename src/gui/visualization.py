@@ -1,4 +1,4 @@
-from data_structure.magic_cube import MagicCube
+from src.data_structure.magic_cube import MagicCube
 
 import tkinter as tk
 import numpy as np
@@ -20,7 +20,8 @@ class Visualization(tk.Frame):
                  is_perfect_cube: bool,
                  message_passed: str,
                  algorithm: str,
-                 iteration: int):
+                 iteration: int,
+                 iteration_values: list[int]):
 
         super().__init__(master)                                        # Construct the visualization window
         self.master = master                                            # Reference to the main window
@@ -31,6 +32,7 @@ class Visualization(tk.Frame):
         self.margin_factor = 0.5                                        # Margin around the cube
         self.auto_index_slider = False
         self.iteration = iteration
+        self.iteration_values = iteration_values
 
         # Set the default play speed
         self.play_speed = 500
@@ -153,21 +155,29 @@ class Visualization(tk.Frame):
         initial_cube_label = tk.Label(cube_frame, text="Initial Cube:")
         initial_cube_label.pack()
 
-        initial_cube_text = str(self.cube_states[0].data)  # Assuming MagicCube has a 'data' attribute
-        initial_cube_display = tk.Label(cube_frame, text=initial_cube_text)
+        initial_cube_text = str(self.cube_states[0].data)
+        initial_cube_display = tk.Text(cube_frame, wrap=tk.WORD, height=10, width=60)
+        initial_cube_display.insert(tk.END, initial_cube_text)
+        initial_cube_display.config(state=tk.DISABLED)
         initial_cube_display.pack()
 
         # Display the resulting cube
         resulting_cube_label = tk.Label(cube_frame, text="Resulting Cube:")
         resulting_cube_label.pack()
 
-        resulting_cube_text = str(self.cube_states[-1].data)  # Last index for resulting cube
-        resulting_cube_display = tk.Label(cube_frame, text=resulting_cube_text)
+        resulting_cube_text = str(self.cube_states[-1].data)
+        resulting_cube_display = tk.Text(cube_frame, wrap=tk.WORD, height=10, width=60)
+        resulting_cube_display.insert(tk.END, resulting_cube_text)
+        resulting_cube_display.config(state=tk.DISABLED)
         resulting_cube_display.pack()
 
         # Prepare data for the line plot
-        objective_values = [cube.get_state_value() for cube in self.cube_states]  # Assuming a method for the objective value
-        iterations = list(range(len(objective_values)))
+        if self.iteration_values is None:
+            objective_values = [cube.get_state_value() for cube in self.cube_states]
+            iterations = list(range(len(objective_values)))
+        else:
+            objective_values = self.iteration_values
+            iterations = list(range(len(objective_values)))
 
         # Create a figure for the line plot
         fig, ax = plt.subplots()
@@ -176,6 +186,11 @@ class Visualization(tk.Frame):
         ax.set_xlabel('Iteration Number')
         ax.set_ylabel('Objective Value')
         ax.grid()
+
+        # Add a red horizontal line at y = 109
+        ax.axhline(y=109, color='red', linestyle='--', label='Diagonal Magic Cube(y=109)')
+
+        ax.legend()
 
         # Embed the plot into the Tkinter window
         canvas = FigureCanvasTkAgg(fig, master=plot_window)
