@@ -27,7 +27,7 @@ class StochasticHillClimb:
         while i < nmax:
             # Generate neighbors
             neighbors = self.__generate_neighbors()
-            if not neighbors:
+            if not neighbors or current_value == 109:
                 break
 
             # Randomly select a neighbor
