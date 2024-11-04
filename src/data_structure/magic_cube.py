@@ -261,43 +261,43 @@ class MagicCube:
         for z in range(self.size):
             for y in range(self.size):
                 if np.sum(self.get_row(y, z)) != self.magic_sum:
-                    print("Row", y, z, "sum is", np.sum(self.get_row(y, z)), "expected", self.magic_sum)
+                    # print("Row", y, z, "sum is", np.sum(self.get_row(y, z)), "expected", self.magic_sum)
                     return False
 
         # Check all columns
         for z in range(self.size):
             for x in range(self.size):
                 if np.sum(self.get_col(x, z)) != self.magic_sum:
-                    print("Col", x, z, "sum is", np.sum(self.get_col(x, z)), "expected", self.magic_sum)
+                    # print("Col", x, z, "sum is", np.sum(self.get_col(x, z)), "expected", self.magic_sum)
                     return False
 
         # Check all pillars
         for y in range(self.size):
             for x in range(self.size):
                 if np.sum(self.get_pillar(x, y)) != self.magic_sum:
-                    print("Pillar", x, y, "sum is", np.sum(self.get_pillar(x, y)), "expected", self.magic_sum)
+                    # print("Pillar", x, y, "sum is", np.sum(self.get_pillar(x, y)), "expected", self.magic_sum)
                     return False
 
         # Check all space diagonals
         for diag in self.get_space_diags():
             if np.sum(diag) != self.magic_sum:
-                print("Space Diag", diag, "sum is", np.sum(diag), "expected", self.magic_sum)
+                # print("Space Diag", diag, "sum is", np.sum(diag), "expected", self.magic_sum)
                 return False
 
         # Check all side diagonals on each axis
         for diag_x in self.get_side_diags_x():
             if np.sum(diag_x) != self.magic_sum:
-                print("Side Diag X", diag_x, "sum is", np.sum(diag_x), "expected", self.magic_sum)
+                # print("Side Diag X", diag_x, "sum is", np.sum(diag_x), "expected", self.magic_sum)
                 return False
 
         for diag_y in self.get_side_diags_y():
             if np.sum(diag_y) != self.magic_sum:
-                print("Side Diag Y", diag_y, "sum is", np.sum(diag_y), "expected", self.magic_sum)
+                # print("Side Diag Y", diag_y, "sum is", np.sum(diag_y), "expected", self.magic_sum)
                 return False
 
         for diag_z in self.get_side_diags_z():
             if np.sum(diag_z) != self.magic_sum:
-                print("Side Diag Z", diag_z, "sum is", np.sum(diag_z), "expected", self.magic_sum)
+                # print("Side Diag Z", diag_z, "sum is", np.sum(diag_z), "expected", self.magic_sum)
                 return False
 
         # If all checks pass, it's a perfect magic cube
