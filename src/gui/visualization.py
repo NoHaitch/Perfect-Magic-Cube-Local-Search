@@ -10,10 +10,12 @@ class Visualization(tk.Frame):
     """
     Visualization Window Frame. Visualize the result of local search.
     """
+
     class Visualization(tk.Frame):
         """
         Visualization Window Frame. Visualize the result of local search.
         """
+
     def __init__(self, master,
                  cube_states: list[MagicCube],
                  time_taken: float,
@@ -23,20 +25,24 @@ class Visualization(tk.Frame):
                  iteration: int,
                  iteration_values: list[int],
                  random_restart_amount: int,
-                 random_restart_iterations: list[int]):
+                 random_restart_iterations: list[int],
+                 data_per_iteration: list[float],
+                 stuck_frequency: int):
 
-        super().__init__(master)                                        # Construct the visualization window
-        self.master = master                                            # Reference to the main window
-        self.cube_states = cube_states                                  # List of MagicCube objects
-        self.cube_size = cube_states[0].size                            # Size of the cube
+        super().__init__(master)  # Construct the visualization window
+        self.master = master  # Reference to the main window
+        self.cube_states = cube_states  # List of MagicCube objects
+        self.cube_size = cube_states[0].size  # Size of the cube
         self.row_colors = ['red', 'blue', 'green', 'orange', 'purple']  # Colors for each row
-        self.spacing_factor = 1.5                                       # Spacing between cube elements
-        self.margin_factor = 0.5                                        # Margin around the cube
+        self.spacing_factor = 1.5  # Spacing between cube elements
+        self.margin_factor = 0.5  # Margin around the cube
         self.auto_index_slider = False
         self.iteration = iteration
         self.iteration_values = iteration_values
         self.random_restart_amount = random_restart_amount
         self.random_restart_iterations = random_restart_iterations
+        self.data_per_iteration = data_per_iteration
+        self.stuck_frequency = stuck_frequency
 
         # Set the default play speed
         self.play_speed = 500
@@ -132,6 +138,17 @@ class Visualization(tk.Frame):
             f"{message_passed}"
             "\n"
         )
+
+        if self.random_restart_amount is not None:
+            description_text += (
+                f"Random Restart Amount: {self.random_restart_amount}\n"
+            )
+
+        if self.stuck_frequency is not None:
+            description_text += (
+                f"Stuck Frequency: {self.stuck_frequency}\n"
+            )
+
         self.description_label = tk.Label(self, text=description_text, font=("Arial", 10), justify=tk.LEFT,
                                           bg="white", borderwidth=2, relief=tk.SUNKEN, padx=20)
         self.description_label.place(relx=0, rely=0, anchor=tk.NW)  # Position at top left
@@ -231,6 +248,23 @@ class Visualization(tk.Frame):
             canvas2.draw()
             canvas2.get_tk_widget().pack()
 
+        if self.data_per_iteration is not None:
+            # Prepare data for the random restart plot
+            iterations = list(range(len(self.data_per_iteration)))
+
+            # Create a new figure for the random restart plot
+            fig2, ax2 = plt.subplots()
+            ax2.plot(iterations, self.data_per_iteration, color='orange')
+            ax2.set_title('Iteration over probability = e(delta_e/temperature)')
+            ax2.set_xlabel('Probability')
+            ax2.set_ylabel('Iteration')
+            ax2.grid()
+
+            # Embed the second plot into the Tkinter window
+            canvas2 = FigureCanvasTkAgg(fig2, master=frame)
+            canvas2.draw()
+            canvas2.get_tk_widget().pack()
+
         # Add a button to close the plot window
         close_button = tk.Button(frame, text="Close", command=plot_window.destroy)
         close_button.pack(pady=5)
@@ -240,8 +274,7 @@ class Visualization(tk.Frame):
         canvas.config(scrollregion=canvas.bbox("all"))
 
         # Bind the mouse wheel to scroll
-        canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1*(event.delta/120)), "units"))
-
+        canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1 * (event.delta / 120)), "units"))
 
     def draw_cube(self, state_index) -> None:
         """

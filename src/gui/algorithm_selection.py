@@ -19,6 +19,8 @@ class AlgorithmSelection(tk.Frame):
 
     def __init__(self, master=None, initial_cube: MagicCube = None):
         super().__init__(master)  # Construct the algorithm selection window
+        self.stuck_frequency = None
+        self.data_per_iteration = None
         self.random_restart_iterations = None
         self.random_restart_amount = None
         self.hc_random_restart_input = False
@@ -146,6 +148,7 @@ class AlgorithmSelection(tk.Frame):
             self.button_random_restart.pack(side=tk.RIGHT, padx=(5, 0))  # Added left padding
         else:
             messagebox.showerror("Button Already Pressed", "Please use the button Run Hill climb with Sideways Move")
+
     def __run_random_restart_hill_climbing(self):
         max_restart = self.input_max_random_restart.get()
         max_restart_iteration = self.input_random_restart_iteration.get()
@@ -160,6 +163,7 @@ class AlgorithmSelection(tk.Frame):
         print("Finished")
         self.time_taken = (end_time - start_time) * 1000
         self.show_visualization()
+
     def run_stochastic_hill_climbing(self):
         if not self.hc_stochastic_input:
             self.hc_stochastic_input = True
@@ -173,6 +177,7 @@ class AlgorithmSelection(tk.Frame):
             button_stochastic.pack(side=tk.RIGHT, padx=(5, 0))  # Added left padding
         else:
             messagebox.showerror("Button Already Pressed", "Please use the button Run Stochastic Hill Climbing")
+
     def __run_stochastic_hill_climbing(self):
         max_iterations = int(self.input_stochastic.get())
         self.algorithm = "Stochastic Hill Climbing"
@@ -199,7 +204,9 @@ class AlgorithmSelection(tk.Frame):
         sa = SimulatedAnnealing(initial_state, self.cube.size)
         sa.simulated_annealing()
         self.cube_states = sa.get_states()
-
+        self.data_per_iteration = sa.get_probability_per_iteration()
+        self.stuck_frequency = sa.get_stuck_frequency()
+        
         end_time = time.time()
         self.time_taken = (end_time - start_time) * 1000
 
@@ -236,5 +243,6 @@ class AlgorithmSelection(tk.Frame):
         visualization = Visualization(visualization_window, self.cube_states,
                                       self.time_taken, self.cube_states[-1].is_perfect(), self.message_passed,
                                       self.algorithm, self.iteration, self.iteration_values,
-                                      self.random_restart_amount, self.random_restart_iterations)
+                                      self.random_restart_amount, self.random_restart_iterations,
+                                      self.data_per_iteration, self.stuck_frequency)
         visualization.pack(fill='both', expand=True)

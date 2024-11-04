@@ -1,8 +1,9 @@
-import random
-
 from src.data_structure.magic_cube import MagicCube
 from src.algorithm.objective_function import ObjectiveFunction
+
+import random
 import math
+
 
 class SimulatedAnnealing:
     """
@@ -24,48 +25,59 @@ class SimulatedAnnealing:
 
         # CONSTANTS (Algorithm Settings)
         self.INITIAL_TEMPERATURE = 2
-        self.MAX_TIME = 2000000
+        self.MAX_TIME = 200000
         # self.MAX_TIME = 1000
         self.time = 1
         self.cube = initial_cube
         self.objective = ObjectiveFunction.get_object_value(initial_cube)
         self.size = cube_size
         self.states: list[MagicCube] = [initial_cube]
+        self.data_per_iteration: list[float] = []
+        self.stuck_frequency: int = 0
 
     def simulated_annealing(self):
         """
         Execute the Algorithm
         """
-        if (not self.cube.is_perfect()):
-            while (self.time <= self.MAX_TIME):
-                neighbor, neighbor_objective= self.__get_random_neigbour()
-                if (neighbor.is_perfect()):
+        if not self.cube.is_perfect():
+            while self.time <= self.MAX_TIME:
+                neighbor, neighbor_objective = self.__get_random_neigbour()
+                if neighbor.is_perfect():
                     self.states.append(neighbor)
                     break
-                if (neighbor_objective > self.objective):
+                if neighbor_objective > self.objective:
                     self.states.append(neighbor)
                     self.cube = neighbor
                     self.objective = neighbor_objective
 
-                    print("State " + str(self.time) + " with value " + str(neighbor_objective) + " and current " + str(self.objective) + " is better")
+                    print("State " + str(self.time) + " with value " + str(neighbor_objective) + " and current " +
+                          str(self.objective) + " is better")
 
                 else:
                     delta_E = neighbor_objective - self.objective
-                    if (self.__accept_by_probability(delta_E, self.time)):
-                        if (delta_E < 0):
+                    if self.__accept_by_probability(delta_E, self.time):
+                        if delta_E < 0:
                             self.states.append(neighbor)
                         self.cube = neighbor
                         self.objective = neighbor_objective
-                        temperature : float = self.INITIAL_TEMPERATURE / math.log(self.time+1)
-                        probability : float = math.exp(delta_E/temperature)
-                        if (delta_E < 0):
-                            print("State " + str(self.time) + " with value " + str(neighbor_objective) + " and current " + str(self.objective) + " with probability " + str(probability) + " E = " + str(delta_E))
+                        temperature: float = self.INITIAL_TEMPERATURE / math.log(self.time+1)
+                        probability: float = math.exp(delta_E/temperature)
+                        self.data_per_iteration.append(probability)
+                        if delta_E < 0:
+                            print("State " + str(self.time) + " with value " + str(neighbor_objective) + " and current "
+                                  + str(self.objective) + " with probability " + str(probability) + " E = " +
+                                  str(delta_E))
                 self.time += 1
         return
 
     def get_states(self) -> list[MagicCube]:
         return self.states
 
+    def get_probability_per_iteration(self) -> list[float]:
+        return self.data_per_iteration
+
+    def get_stuck_frequency(self) -> int:
+        return self.stuck_frequency
 
     # -- INTERNAL FUNCTION --
 
