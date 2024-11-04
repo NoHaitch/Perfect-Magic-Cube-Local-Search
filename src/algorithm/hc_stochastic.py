@@ -11,7 +11,7 @@ class StochasticHillClimb:
         self.states: list[MagicCube] = [initial_cube]   # self.states[-1] is the current state
         self.iteration_value: list[int] = []
 
-    def stochastic_hill_climb(self, nmax: int) -> tuple[list[any], int, list[int]]:
+    def stochastic_hill_climb(self, nmax: int = 5000) -> tuple[list[any], int, list[int]]:
         """
         Executes the Stochastic Hill Climbing algorithm for a maximum of nmax iterations.
         Returns the best state and the number of iterations performed.
@@ -37,9 +37,9 @@ class StochasticHillClimb:
             if neighbor_value > current_value:
                 self.states.append(neighbor)
                 current_value = neighbor_value
+                print("iteration", i, "- current value", current_value)
 
             i += 1
-            print("iteration", i, "- current value", current_value)
 
         return self.states, i, self.iteration_value
 

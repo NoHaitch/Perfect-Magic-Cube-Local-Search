@@ -184,7 +184,11 @@ class AlgorithmSelection(tk.Frame):
             messagebox.showerror("Button Already Pressed", "Please use the button Run Stochastic Hill Climbing")
 
     def __run_stochastic_hill_climbing(self):
-        max_iterations = int(self.input_stochastic.get())
+        temp = self.input_stochastic.get()
+        if temp == "":
+            max_iterations = 5000  # default number
+        else:
+            max_iterations = int(temp)
         self.algorithm = "Stochastic Hill Climbing"
         print("Running")
         start_time = time.time()
