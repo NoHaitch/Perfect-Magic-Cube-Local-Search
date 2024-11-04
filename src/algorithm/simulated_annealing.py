@@ -41,7 +41,7 @@ class SimulatedAnnealing:
         """
         if not self.cube.is_perfect():
             while self.time <= self.MAX_TIME:
-                neighbor, neighbor_objective = self.__get_random_neigbour()
+                neighbor, neighbor_objective = self.__get_random_neighbor()
                 if neighbor.is_perfect():
                     self.states.append(neighbor)
                     break
@@ -58,10 +58,11 @@ class SimulatedAnnealing:
                     if self.__accept_by_probability(delta_E, self.time):
                         if delta_E < 0:
                             self.states.append(neighbor)
+                            self.stuck_frequency += 1
                         self.cube = neighbor
                         self.objective = neighbor_objective
-                        temperature: float = self.INITIAL_TEMPERATURE / math.log(self.time+1)
-                        probability: float = math.exp(delta_E/temperature)
+                        temperature: float = self.INITIAL_TEMPERATURE / math.log(self.time + 1)
+                        probability: float = math.exp(delta_E / temperature)
                         self.data_per_iteration.append(probability)
                         if delta_E < 0:
                             print("State " + str(self.time) + " with value " + str(neighbor_objective) + " and current "
@@ -81,26 +82,18 @@ class SimulatedAnnealing:
 
     # -- INTERNAL FUNCTION --
 
-    def __get_random_neigbour(self) -> [MagicCube, int]:
+    def __get_random_neighbor(self) -> [MagicCube, int]:
         """
         Returns a random neighbor and it's value
         """
-        i = random.randint(0, self.size**3-1)
-        j = random.randint(i, self.size**3-1)
-        neighbor : MagicCube = self.cube.swap_index_copy(i, j)
-        neighbor_objective : int = ObjectiveFunction.get_object_value(neighbor)
+        i = random.randint(0, self.size ** 3 - 1)
+        j = random.randint(i, self.size ** 3 - 1)
+        neighbor: MagicCube = self.cube.swap_index_copy(i, j)
+        neighbor_objective: int = ObjectiveFunction.get_object_value(neighbor)
         return [neighbor, neighbor_objective]
 
     def __accept_by_probability(self, delta_e, time) -> bool:
-        temperature : float = self.INITIAL_TEMPERATURE / math.log(time+1)
-        probability : float = math.exp(delta_e/temperature)
-        rnd : float = random.random()
+        temperature: float = self.INITIAL_TEMPERATURE / math.log(time + 1)
+        probability: float = math.exp(delta_e / temperature)
+        rnd: float = random.random()
         return rnd < probability
-        # print(str(rnd) + " " + str(probability) + str(rnd < probability))
-        #if (rnd < probability):
-        #    if (delta_e != 0):
-        #        print(str(rnd) + " " + str(probability) + " " + str(rnd < probability))
-        #    return True
-        #else:
-        #    print(str(rnd) + " " + str(probability) + " " + str(rnd < probability))
-        #    return False
