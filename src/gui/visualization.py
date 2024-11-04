@@ -28,7 +28,8 @@ class Visualization(tk.Frame):
                  random_restart_iterations: list[int],
                  data_per_iteration: list[float],
                  stuck_frequency: int,
-                 get_population_amount: int):
+                 get_population_amount: int,
+                 max_obj_func: int):
 
         super().__init__(master)  # Construct the visualization window
         self.master = master  # Reference to the main window
@@ -45,6 +46,7 @@ class Visualization(tk.Frame):
         self.data_per_iteration = data_per_iteration
         self.stuck_frequency = stuck_frequency
         self.get_population_amount = get_population_amount
+        self.maximum_objective_function = max_obj_func
 
         # Set the default play speed
         self.play_speed = 500
@@ -154,6 +156,11 @@ class Visualization(tk.Frame):
         if self.get_population_amount is not None:
             description_text += (
                 f"Population Amount: {self.get_population_amount}\n"
+            )
+
+        if self.maximum_objective_function is not None:
+            description_text += (
+                f"Maximum_objective_function: {self.maximum_objective_function}\n"
             )
 
         self.description_label = tk.Label(self, text=description_text, font=("Arial", 10), justify=tk.LEFT,

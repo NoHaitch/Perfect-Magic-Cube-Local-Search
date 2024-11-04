@@ -9,8 +9,8 @@ from algorithm.objective_function import ObjectiveFunction
 class GeneticAlgorithm:
 
     def __init__(self, initial_cube: MagicCube, cube_size: int, iteration: int, population: int):
-        self.POPULATION_COUNT = 300
-        self.MAX_ITERATION = 300
+        self.POPULATION_COUNT = population  # 300
+        self.MAX_ITERATION = iteration  # 300
         self.MUTATION_CHANCE = 0.2
         self.TARGET_VALUE = 109
         self.cube = initial_cube
@@ -19,11 +19,13 @@ class GeneticAlgorithm:
         self.population: list[[MagicCube, int]] = []
         self.range = []
         self.states: list[MagicCube] = []
-        self.population_input = population
-        self.iteration_input = iteration
+        self.average: float = 0
 
-    def get_population_amount(self):
-        return self.population_input # BENERIN INI !!!
+    def get_best_value(self) -> int:
+        return ObjectiveFunction.get_object_value(self.states[-1])
+
+    def get_average(self):
+        return self.average
 
     def genetic_algorithm(self):
         self.population = self.__create_population()
@@ -49,13 +51,16 @@ class GeneticAlgorithm:
                     return
             best = 0
             best_instance = None
+            total = 0
             for c in children:
+                total += c[1]
                 if c[1] > best:
                     best_instance = c[0]
                     best = c[1]
+            self.average = total / self.POPULATION_COUNT
             self.states.append(best_instance)
             self.population = children
-            print(best)
+            # print(best)
             self.iteration += 1
         print(best)
         return

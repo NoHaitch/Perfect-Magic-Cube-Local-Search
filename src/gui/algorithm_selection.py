@@ -43,6 +43,7 @@ class AlgorithmSelection(tk.Frame):
         self.time_taken: float = 0  # Time taken to solve the cube
         self.message_passed: str = ""  # Additional Message to be displayed
         self.algorithm: str = ""
+        self.maximum_objective_function = None
 
         self.hc_sideways_input = False  # Flag to check if the input for Hill Climbing with Sideways Move is shown
         self.hc_stochastic_input = False  # Flag to check if the input for Stochastic Hill Climbing is shown
@@ -234,11 +235,11 @@ class AlgorithmSelection(tk.Frame):
             self.generic_algorithm_iteration = tk.Entry(self.input_frame, width=4, bg="white", font=("Courier", 10))
             self.generic_algorithm_iteration.pack(side=tk.LEFT)
 
-            self.button_sideways = tk.Button(self.button_frame, text="Run Hill Climbing with Sideways Move",
+            self.button_sideways = tk.Button(self.button_frame, text="Run Genetic Algorithm",
                                              command=lambda: self.__run_genetic_algorithm())
             self.button_sideways.pack(side=tk.RIGHT, padx=(5, 0))  # Added left padding
         else:
-            messagebox.showerror("Button Already Pressed", "Please use the button Run Hill climb with Sideways Move")
+            messagebox.showerror("Button Already Pressed", "Please use the button Run Genetic Algorithm")
 
     def __run_genetic_algorithm(self):
         self.algorithm = "Genetic Algorithm"
@@ -248,10 +249,10 @@ class AlgorithmSelection(tk.Frame):
         start_time = time.time()
         initial_state = self.cube
 
-        ga = GeneticAlgorithm(initial_state, self.cube.size)
+        ga : GeneticAlgorithm = GeneticAlgorithm(initial_state, self.cube.size, int(self.generic_algorithm_iteration.get()), int(self.population_amount.get()))
         ga.genetic_algorithm()
         self.cube_states = ga.get_states()
-        self.get_population_amount = ga.get_population_amount()
+        self.maximum_objective_function = ga.get_best_value()
 
         end_time = time.time()
         self.time_taken = (end_time - start_time) * 1000
@@ -271,5 +272,5 @@ class AlgorithmSelection(tk.Frame):
                                       self.time_taken, self.cube_states[-1].is_perfect(), self.message_passed,
                                       self.algorithm, self.iteration, self.iteration_values,
                                       self.random_restart_amount, self.random_restart_iterations,
-                                      self.data_per_iteration, self.stuck_frequency, self.get_population_amount)
+                                      self.data_per_iteration, self.stuck_frequency, self.get_population_amount, self.maximum_objective_function)
         visualization.pack(fill='both', expand=True)
