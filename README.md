@@ -57,7 +57,7 @@
 - [Spesifikasi](https://docs.google.com/document/d/1QDj9Pi3HrBr2VdFIvsnrA8KXaISpEr4JaGlYRxOUPWw/edit?tab=t.0)
 - [QNA](https://docs.google.com/spreadsheets/d/1vdcs6_H2dzAcGRpMfuVdMeMgwbOueonr9H8Ktf1EsM0/edit?gid=214125299#gid=214125299)
 - [Teams](https://docs.google.com/spreadsheets/d/1P89vLbXLBLD1yFKTNlYXQKq8-LoLnciIyaN9sYpYzt4/edit?gid=356897139#gid=356897139)
-- [Laporan](https://docs.google.com/document/d/1CaHkBdRlvKTm0uHO0GQlmdv47fBui5xi6eS0ltX4IOs/edit?usp=sharing)
+- [Laporan](https://github.com/NoHaitch/Perfect-Magic-Cube-Local-Search/blob/main/doc/Laporan%20Tugas%20Besar%201%20IF3170%20-%20Kelompok%2018.pdf)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
