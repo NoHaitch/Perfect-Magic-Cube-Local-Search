@@ -23,7 +23,7 @@ class HillClimbSideways:
         # Loop of hill-climbing sideways move
         while True:
             # find the best state and its value
-            neighbour, neighbour_value = self.__get_highest_value_neigbour(i_sides)
+            neighbour, neighbour_value = self.__get_highest_value_neigbour()
             
             if (neighbour_value < current_value) or (i_sides == self.max_sides):
                 # if the neighbour objective function value is LESS than the current objective function value
@@ -41,7 +41,7 @@ class HillClimbSideways:
     
     # -- INTERNAL FUNCTION --
 
-    def __get_highest_value_neigbour(self, i_sides):
+    def __get_highest_value_neigbour(self):
         """
         Returns the best state and its state value.
         """
