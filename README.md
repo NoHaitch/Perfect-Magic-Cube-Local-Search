@@ -65,15 +65,20 @@
 
 ## About The Project
 
-General Explanation about the project, Why you made this, What does it do exactly.
+Perfect Magic Cube Solver Using Local Search.
 
-<!-- OPTIONAL LINK OR REFERENCE -->
-<!-- <p align="center">
-You can explore more on this link ...
-<br>
-<a href="https://example.com"> <Strong>THIS LINK</Strong>
-</a>
-</p> -->
+Perfect/Diagonal Magic Cube are a 3x3x3 cube where the sum of each row, column, and diagonal is the same. 
+The goal of this project is to find the solution to the Perfect Magic Cube using Local Search. We will be using Python 
+to implement the Local Search algorithm.
+
+The Local Search Implemented in this program are:
+1. Hill Climbing (HC)
+   - Steepest Ascent Hill Climbing
+   - Hill Climbing with Sideways Move
+   - Random Restart Hill Climbing
+   - Stochastic Hill Climbing
+2. Simulated Annealing (SA)
+3. Genetic Algorithm
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -84,17 +89,14 @@ You can explore more on this link ...
 ### Prerequisites
 
 Project dependencies  
-example :
 
-- Make
-  ```sh
-  # in Linux
-  sudo apt install make
-  ```
 - Python
   ```sh
   # in Linux
   sudo apt install python3
+  
+  # Or other OS
+  https://www.python.org/
   ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -105,9 +107,16 @@ _How to install and use your project_
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/NoHaitch/Repository_Template
+   git clone https://github.com/NoHaitch/Perfect-Magic-Cube-Local-Search
    ```
-2. Change the content
+2. Change directory
+    ```sh
+    cd Perfect-Magic-Cube-Local-Search
+    ```
+3. Run the Python Program
+    ```sh
+    python3 src/main.py
+    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -115,14 +124,9 @@ _How to install and use your project_
 
 ## Instruction
 
-Instruction to run/build/etc the program  
-example:
+To run the program you can simply run the main.py in the src folder.
 
-`make build` : To build from source to binary into bin/main  
-`make all` : Run binary directly after building  
-`make clean` : Remove all build generated files  
-`make ADT.test` : Running test for ADT test file, for example ( `make time.test` )  
-`make test.all` : Running all test
+`python src/main.py`: run the program
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -130,35 +134,33 @@ example:
 
 ## Features
 
-### 1. Feature X
+### 1. Local Search Algorithm
+1. Hill Climbing (HC)
+    - Steepest Ascent Hill Climbing
+    - Hill Climbing with Sideways Move
+    - Random Restart Hill Climbing
+    - Stochastic Hill Climbing
+2. Simulated Annealing (SA)
+3. Genetic Algorithm
 
-this feature does X
+### 2. Simple GUI
 
-### 2. Feature Y
-
-this feature does Y  
-sub-features:
-
-1.  function 1
-2.  function 2
-3.  function 3
-
-### 3. Feature Z
-
-this feature does Z
-
-- `A`: print A.
-- `B`: print B.
-- `C`: print C.
+### 3. Video Player Like Visualization
+    *note: you might need to resize all the elements to see the visualization controls.*
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- TASK DISTRIBUTION -->
 
-|  NIM |    |
-| :------------: | :-------: |
-|     navbar     | 13522091  |
-|     navbar     | 13522091  
+## Task Distribution
+
+|   NIM    | Tugas                                                                                                                                                                               |
+|:--------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 12821046 | Objective Function, Hill Climb Steepest Ascent, Hill Climb with Sideways Move, Pembahasan, Hasil & Analisis                                                                         |
+| 13522037 | Simulated Annealing, Genetic Algorithm, Pembahasan, Hasil & Analisis, Kesimpulan & Saran                                                                                            |
+| 13522091 | Magic Cube, Objective Function, Stochastic Hill Climbing, GUI & Visualization, Bonus Video Player, Readme, Deskripsi Permasalahan, Pembahasan, Hasil & Analisis, Kesimpulan & Saran |
+| 18321011 | Objective Function, Hill Climb Random Restart, Deskripsi Permasalahan, Pembahasan, Hasil & Analisis, Kesimpulan & Saran                                                             |
+
 
 <!-- CONTRIBUTING -->
 
