@@ -2,7 +2,6 @@ import random
 
 from src.data_structure.magic_cube import MagicCube
 from src.algorithm.objective_function import ObjectiveFunction
-import numpy as np
 import math
 
 class SimulatedAnnealing:
@@ -25,7 +24,7 @@ class SimulatedAnnealing:
 
         # CONSTANTS (Algorithm Settings)
         self.INITIAL_TEMPERATURE = 2
-        self.MAX_TIME = 2500000
+        self.MAX_TIME = 2000000
         # self.MAX_TIME = 1000
         self.time = 1
         self.cube = initial_cube
