@@ -20,8 +20,8 @@ class MagicCube:
         :param size: Magic Cube Dimensions, default = 5
         """
         self.size: int = size  # dimensions, default 5x5x5
-        self.data: np.ndarray = data if data is not None else np.random.permutation(np.arange(1, size**3 + 1))
         self.magic_sum: int = size * (size**3 + 1) // 2  # default is 315
+        self.data : np.ndarray = data if data is not None else np.random.permutation(np.arange(1, size**3 + 1))
 
     def copy(self) -> 'MagicCube':
         """

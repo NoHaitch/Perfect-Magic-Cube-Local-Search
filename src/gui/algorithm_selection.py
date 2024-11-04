@@ -4,6 +4,7 @@ from algorithm.hc_steepest_ascent import HillClimbSteepest
 from algorithm.hc_sideways_move import HillClimbSideways
 from algorithm.hc_random import RandomRestartHillClimbing
 from algorithm.simulated_annealing import SimulatedAnnealing
+from algorithm.genetic_algorithm import GeneticAlgorithm
 from algorithm.hc_stochastic import StochasticHillClimb
 from gui.visualization import Visualization
 from data_structure.magic_cube import MagicCube
@@ -189,6 +190,9 @@ class AlgorithmSelection(tk.Frame):
 
     def run_simulated_annealing(self):
         self.algorithm = "Simulated Annealing"
+
+        print("Running")
+
         start_time = time.time()
         initial_state = self.cube
 
@@ -199,15 +203,26 @@ class AlgorithmSelection(tk.Frame):
         end_time = time.time()
         self.time_taken = (end_time - start_time) * 1000
 
+        print("Finished")
+
         self.show_visualization()
 
     def run_genetic_algorithm(self):
         self.algorithm = "Genetic Algorithm"
+
+        print("Running")
+
         start_time = time.time()
-        self.cube_states = [MagicCube() for _ in range(100000)]
-        # TODO: Implement Genetic Algorithm logic
+        initial_state = self.cube
+
+        ga = GeneticAlgorithm(initial_state, self.cube.size)
+        ga.genetic_algorithm()
+        self.cube_states = ga.get_states()
+
         end_time = time.time()
         self.time_taken = (end_time - start_time) * 1000
+
+        print("Finished")
 
         self.show_visualization()
 
