@@ -1,12 +1,8 @@
-import numpy as np
 from src.data_structure.magic_cube import MagicCube
 from src.algorithm.objective_function import ObjectiveFunction
 import copy
 from random import randint
-import matplotlib.pyplot as plt
-import tkinter as tk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
+
 
 class RandomRestartHillClimbing:
     def __init__(self, cube_size=5, max_restarts=10, max_iterations=20, initial_state=None):

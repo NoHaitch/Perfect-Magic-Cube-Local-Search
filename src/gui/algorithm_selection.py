@@ -19,6 +19,10 @@ class AlgorithmSelection(tk.Frame):
 
     def __init__(self, master=None, initial_cube: MagicCube = None):
         super().__init__(master)  # Construct the algorithm selection window
+        self.hc_random_restart_input = False
+        self.input_max_random_restart = None
+        self.button_random_restart = None
+        self.input_random_restart_iteration = None
         self.max_stochastic_iterations = None
         self.button_sideways = None
         self.input_sideways = None
@@ -128,12 +132,36 @@ class AlgorithmSelection(tk.Frame):
         self.show_visualization()
 
     def run_random_restart_hill_climbing(self):
+        if not self.hc_random_restart_input:
+            self.hc_random_restart_input = True
+
+            self.label = tk.Label(self.input_frame, text="Maximum Random Restart:", font=("Arial", 10, "bold"))
+            self.label.pack(side=tk.LEFT, padx=(0, 5))  # Added right padding
+
+            self.input_max_random_restart = tk.Entry(self.input_frame, width=4, bg="white", font=("Courier", 10))
+            self.input_max_random_restart.pack(side=tk.LEFT)
+
+            self.label = tk.Label(self.input_frame, text="Maximum Random Restart Iteration:", font=("Arial", 10, "bold"))
+            self.label.pack(side=tk.LEFT, padx=(0, 5))  # Added right padding
+
+            self.input_max_random_restart = tk.Entry(self.input_frame, width=4, bg="white", font=("Courier", 10))
+            self.input_max_random_restart.pack(side=tk.LEFT)
+
+            self.button_random_restart = tk.Button(self.button_frame, text="Run Hill Climbing with Sideways Move",
+                                                   command=lambda: self.__run_random_restart_hill_climbing())
+            self.button_random_restart.pack(side=tk.RIGHT, padx=(5, 0))  # Added left padding
+        else:
+            messagebox.showerror("Button Already Pressed", "Please use the button Run Hill climb with Sideways Move")
+
+    def __run_random_restart_hill_climbing(self):
+        max_restart = self.input_max_random_restart.get()
+        max_restart_iteration = self.input_random_restart_iteration.get()
         self.algorithm = "Random Restart Hill Climbing"
 
         print("Running")
 
         start_time = time.time()
-        hc_random = RandomRestartHillClimbing(cube_size=self.cube.size, initial_state=self.cube.data)
+        hc_random = RandomRestartHillClimbing(self.cube.size, max_restart, max_restart_iteration, self.cube.data)
         self.cube_states, self.iteration = hc_random.run()
         end_time = time.time()
 
