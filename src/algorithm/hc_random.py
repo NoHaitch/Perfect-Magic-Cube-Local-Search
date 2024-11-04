@@ -1,5 +1,5 @@
-from src.data_structure.magic_cube import MagicCube
-from src.algorithm.objective_function import ObjectiveFunction
+from data_structure.magic_cube import MagicCube
+from algorithm.objective_function import ObjectiveFunction
 import copy
 from random import randint
 
