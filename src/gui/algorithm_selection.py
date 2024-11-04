@@ -19,6 +19,8 @@ class AlgorithmSelection(tk.Frame):
 
     def __init__(self, master=None, initial_cube: MagicCube = None):
         super().__init__(master)  # Construct the algorithm selection window
+        self.random_restart_iterations = None
+        self.random_restart_amount = None
         self.hc_random_restart_input = False
         self.input_max_random_restart = None
         self.button_random_restart = None
@@ -144,8 +146,8 @@ class AlgorithmSelection(tk.Frame):
             self.label = tk.Label(self.input_frame, text="Maximum Random Restart Iteration:", font=("Arial", 10, "bold"))
             self.label.pack(side=tk.LEFT, padx=(0, 5))  # Added right padding
 
-            self.input_max_random_restart = tk.Entry(self.input_frame, width=4, bg="white", font=("Courier", 10))
-            self.input_max_random_restart.pack(side=tk.LEFT)
+            self.input_random_restart_iteration = tk.Entry(self.input_frame, width=4, bg="white", font=("Courier", 10))
+            self.input_random_restart_iteration.pack(side=tk.LEFT)
 
             self.button_random_restart = tk.Button(self.button_frame, text="Run Hill Climbing with Sideways Move",
                                                    command=lambda: self.__run_random_restart_hill_climbing())
@@ -162,7 +164,7 @@ class AlgorithmSelection(tk.Frame):
 
         start_time = time.time()
         hc_random = RandomRestartHillClimbing(self.cube.size, max_restart, max_restart_iteration, self.cube.data)
-        self.cube_states, self.iteration = hc_random.run()
+        self.cube_states, self.iteration, self.random_restart_iterations, self.random_restart_amount = hc_random.run()
         end_time = time.time()
 
         print("Finished")
@@ -233,5 +235,6 @@ class AlgorithmSelection(tk.Frame):
         visualization_window = tk.Toplevel(self)
         visualization = Visualization(visualization_window, self.cube_states,
                                       self.time_taken, self.cube_states[-1].is_perfect(), self.message_passed,
-                                      self.algorithm, self.iteration, self.iteration_values)
+                                      self.algorithm, self.iteration, self.iteration_values, 
+                                      self.random_restart_amount, self.random_restart_iterations)
         visualization.pack(fill='both', expand=True)

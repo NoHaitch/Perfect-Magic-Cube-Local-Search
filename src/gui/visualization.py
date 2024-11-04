@@ -21,18 +21,22 @@ class Visualization(tk.Frame):
                  message_passed: str,
                  algorithm: str,
                  iteration: int,
-                 iteration_values: list[int]):
+                 iteration_values: list[int],
+                 random_restart_amount: int,
+                 random_restart_iterations: list[int]):
 
         super().__init__(master)                                        # Construct the visualization window
         self.master = master                                            # Reference to the main window
         self.cube_states = cube_states                                  # List of MagicCube objects
-        self.cube_size = cube_states[0].size                          # Size of the cube
+        self.cube_size = cube_states[0].size                            # Size of the cube
         self.row_colors = ['red', 'blue', 'green', 'orange', 'purple']  # Colors for each row
         self.spacing_factor = 1.5                                       # Spacing between cube elements
         self.margin_factor = 0.5                                        # Margin around the cube
         self.auto_index_slider = False
         self.iteration = iteration
         self.iteration_values = iteration_values
+        self.random_restart_amount = random_restart_amount
+        self.random_restart_iterations = random_restart_iterations
 
         # Set the default play speed
         self.play_speed = 500
@@ -147,8 +151,21 @@ class Visualization(tk.Frame):
         plot_window = tk.Toplevel(self.master)
         plot_window.title("Cube and Objective Function Plot")
 
+        # Set up a canvas with a scrollbar
+        canvas = tk.Canvas(plot_window)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        scrollbar = tk.Scrollbar(plot_window, orient="vertical", command=canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Create a frame inside the canvas to hold all widgets
+        frame = tk.Frame(canvas)
+        canvas.create_window((0, 0), window=frame, anchor="nw")
+
         # Create a frame for the cubes
-        cube_frame = tk.Frame(plot_window)
+        cube_frame = tk.Frame(frame)
         cube_frame.pack(pady=10)
 
         # Display the initial cube
@@ -189,17 +206,42 @@ class Visualization(tk.Frame):
 
         # Add a red horizontal line at y = 109
         ax.axhline(y=109, color='red', linestyle='--', label='Diagonal Magic Cube(y=109)')
-
         ax.legend()
 
         # Embed the plot into the Tkinter window
-        canvas = FigureCanvasTkAgg(fig, master=plot_window)
-        canvas.draw()
-        canvas.get_tk_widget().pack()
+        canvas1 = FigureCanvasTkAgg(fig, master=frame)
+        canvas1.draw()
+        canvas1.get_tk_widget().pack()
+
+        if self.random_restart_iterations:
+            # Prepare data for the random restart plot
+            random_restart_iterations = list(range(self.random_restart_amount))
+            random_restart_values = self.random_restart_iterations
+
+            # Create a new figure for the random restart plot
+            fig2, ax2 = plt.subplots()
+            ax2.plot(random_restart_iterations, random_restart_values, color='orange')
+            ax2.set_title('Iteration over Random Restart')
+            ax2.set_xlabel('Random Restart Number')
+            ax2.set_ylabel('Iteration')
+            ax2.grid()
+
+            # Embed the second plot into the Tkinter window
+            canvas2 = FigureCanvasTkAgg(fig2, master=frame)
+            canvas2.draw()
+            canvas2.get_tk_widget().pack()
 
         # Add a button to close the plot window
-        close_button = tk.Button(plot_window, text="Close", command=plot_window.destroy)
+        close_button = tk.Button(frame, text="Close", command=plot_window.destroy)
         close_button.pack(pady=5)
+
+        # Update the scroll region after widgets are added
+        frame.update_idletasks()  # Update frame's dimensions
+        canvas.config(scrollregion=canvas.bbox("all"))
+
+        # Bind the mouse wheel to scroll
+        canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1*(event.delta/120)), "units"))
+
 
     def draw_cube(self, state_index) -> None:
         """

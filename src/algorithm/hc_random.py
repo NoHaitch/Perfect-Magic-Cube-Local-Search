@@ -52,21 +52,26 @@ class RandomRestartHillClimbing:
         """
         cube.data[idx1], cube.data[idx2] = cube.data[idx2], cube.data[idx1]
 
-    def run(self):
+    def run(self) -> tuple[list[MagicCube], int, list[int], int]:
         self.best_cube = copy.deepcopy(self.initial_cube)
         self.best_score = self.evaluate(self.initial_cube)
         best_states_per_restart = []  # Track the best state of each restart
-        best_scores_per_restart = []  # Track the best score of each restart
+        best_scores_per_restart = []  # Track the best score of each
+        iteration_per_restart = []
         total_iterations = 0
+        restart_amount = 0
 
-        for restart in range(self.max_restarts):
+        for restart in range(int(self.max_restarts)):
+            restart_amount += 1
             cube = copy.deepcopy(self.initial_cube) if restart == 0 else MagicCube(size=self.cube_size)
             current_score = self.evaluate(cube)
             best_local_state = copy.deepcopy(cube)
             best_local_score = current_score
             iteration_scores = []
+            iteration_this_restart = 0
 
-            for iteration in range(self.max_iterations):
+            for iteration in range(int(self.max_iterations)):
+                iteration_this_restart += 1
                 best_neighbor_score = current_score
                 best_swap = None
 
@@ -103,9 +108,11 @@ class RandomRestartHillClimbing:
 
                 iteration_scores.append(current_score)
 
+            iteration_per_restart.append(iteration_this_restart)
+
             # Save the best state and score for this restart
             best_states_per_restart.append(best_local_state)
             best_scores_per_restart.append(best_local_score)
             print(f"Restart {restart} completed. Best score for this restart: {best_local_score}")
 
-        return best_states_per_restart, total_iterations
+        return best_states_per_restart, total_iterations, iteration_per_restart, restart_amount
