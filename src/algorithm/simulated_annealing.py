@@ -25,8 +25,9 @@ class SimulatedAnnealing:
 
         # CONSTANTS (Algorithm Settings)
         self.INITIAL_TEMPERATURE = 2
-        self.MAX_TIME = 200000
+        self.MAX_TIME = 250000
         # self.MAX_TIME = 1000
+        self.TARGET_VALUE = 109
         self.time = 1
         self.cube = initial_cube
         self.objective = ObjectiveFunction.get_object_value(initial_cube)
@@ -42,7 +43,7 @@ class SimulatedAnnealing:
         if not self.cube.is_perfect():
             while self.time <= self.MAX_TIME:
                 neighbor, neighbor_objective = self.__get_random_neighbor()
-                if neighbor.is_perfect():
+                if neighbor_objective == self.TARGET_VALUE:
                     self.states.append(neighbor)
                     break
                 if neighbor_objective > self.objective:
@@ -51,7 +52,7 @@ class SimulatedAnnealing:
                     self.objective = neighbor_objective
 
                     print("State " + str(self.time) + " with value " + str(neighbor_objective) + " and current " +
-                          str(self.objective) + " is better")
+                        str(self.objective) + " is better")
 
                 else:
                     delta_E = neighbor_objective - self.objective
@@ -64,10 +65,10 @@ class SimulatedAnnealing:
                         temperature: float = self.INITIAL_TEMPERATURE / math.log(self.time + 1)
                         probability: float = math.exp(delta_E / temperature)
                         self.data_per_iteration.append(probability)
-                        if delta_E < 0:
-                            print("State " + str(self.time) + " with value " + str(neighbor_objective) + " and current "
-                                  + str(self.objective) + " with probability " + str(probability) + " E = " +
-                                  str(delta_E))
+                        # if delta_E < 0:
+                        #     print("State " + str(self.time) + " with value " + str(neighbor_objective) + " and current "
+                        #           + str(self.objective) + " with probability " + str(probability) + " E = " +
+                        #           str(delta_E))
                 self.time += 1
         return
 
@@ -95,5 +96,4 @@ class SimulatedAnnealing:
     def __accept_by_probability(self, delta_e, time) -> bool:
         temperature: float = self.INITIAL_TEMPERATURE / math.log(time + 1)
         probability: float = math.exp(delta_e / temperature)
-        rnd: float = random.random()
-        return rnd < probability
+        return random.random() < probability
