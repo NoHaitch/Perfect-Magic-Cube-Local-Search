@@ -19,6 +19,9 @@ class AlgorithmSelection(tk.Frame):
 
     def __init__(self, master=None, initial_cube: MagicCube = None):
         super().__init__(master)  # Construct the algorithm selection window
+        self.generic_algorithm_iteration = None
+        self.population_amount = None
+        self.generic_algorithm = False
         self.stuck_frequency = None
         self.data_per_iteration = None
         self.random_restart_iterations = None
@@ -28,6 +31,7 @@ class AlgorithmSelection(tk.Frame):
         self.button_random_restart = None
         self.input_random_restart_iteration = None
         self.max_stochastic_iterations = None
+        self.get_population_amount = None
         self.button_sideways = None
         self.input_sideways = None
         self.input_stochastic = None
@@ -215,6 +219,28 @@ class AlgorithmSelection(tk.Frame):
         self.show_visualization()
 
     def run_genetic_algorithm(self):
+        if not self.generic_algorithm:
+            self.generic_algorithm = True
+
+            self.label = tk.Label(self.input_frame, text="Generic Algorithm Population Amount:", font=("Arial", 10, "bold"))
+            self.label.pack(side=tk.LEFT, padx=(0, 5))  # Added right padding
+
+            self.population_amount = tk.Entry(self.input_frame, width=4, bg="white", font=("Courier", 10))
+            self.population_amount.pack(side=tk.LEFT)
+
+            self.label = tk.Label(self.input_frame, text="Generic Algorithm Iteration Amount:", font=("Arial", 10, "bold"))
+            self.label.pack(side=tk.LEFT, padx=(0, 5))  # Added right padding
+
+            self.generic_algorithm_iteration = tk.Entry(self.input_frame, width=4, bg="white", font=("Courier", 10))
+            self.generic_algorithm_iteration.pack(side=tk.LEFT)
+
+            self.button_sideways = tk.Button(self.button_frame, text="Run Hill Climbing with Sideways Move",
+                                             command=lambda: self.__run_genetic_algorithm())
+            self.button_sideways.pack(side=tk.RIGHT, padx=(5, 0))  # Added left padding
+        else:
+            messagebox.showerror("Button Already Pressed", "Please use the button Run Hill climb with Sideways Move")
+
+    def __run_genetic_algorithm(self):
         self.algorithm = "Genetic Algorithm"
 
         print("Running")
@@ -225,6 +251,7 @@ class AlgorithmSelection(tk.Frame):
         ga = GeneticAlgorithm(initial_state, self.cube.size)
         ga.genetic_algorithm()
         self.cube_states = ga.get_states()
+        self.get_population_amount = ga.get_population_amount()
 
         end_time = time.time()
         self.time_taken = (end_time - start_time) * 1000
@@ -244,5 +271,5 @@ class AlgorithmSelection(tk.Frame):
                                       self.time_taken, self.cube_states[-1].is_perfect(), self.message_passed,
                                       self.algorithm, self.iteration, self.iteration_values,
                                       self.random_restart_amount, self.random_restart_iterations,
-                                      self.data_per_iteration, self.stuck_frequency)
+                                      self.data_per_iteration, self.stuck_frequency, self.get_population_amount)
         visualization.pack(fill='both', expand=True)
